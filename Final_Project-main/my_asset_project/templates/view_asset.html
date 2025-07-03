@@ -1,0 +1,857 @@
+{% extends "base1.html" %}
+{% block bodyContent %}
+<style>
+        .awesome-header {
+        font-size: 25px;
+        text-align: center;
+
+        color: green;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+</style>
+<div class="row">
+    <div class="container" style="text-align: center;">
+            <div class="card-body">
+                <a href="/search_assets"><button type="button" class="btn btn-success">Search Asset</button></a>
+                <a href="/add_asset"><button type="button" class="btn btn-success">Add New Asset</button></a>
+                <a href="/bulk_upload"><button type="button" class="btn btn-success">Bulk Upload Asset</button></a>
+                <a href="/asset_life_cycle"><button type="button" class="btn btn-success">Asset Life Cycle</button></a>
+
+            </div>
+    </div>
+</div>
+<div class="container">
+    <br>
+    <h1 class="awesome-header">View Asset</h1>
+    <p style="color: darkgoldenrod; text-align: center;">Efficiently and Effortlessly View Assets</p>
+        <br>
+    <style>
+
+        .collapsible {
+            background-color:green;
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+    }
+
+
+    .collapsible:after {
+    content: '\002B';
+    color: white;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+    }
+
+    .container1 {
+    padding: 0 18px;
+    overflow: hidden;
+    }
+
+    .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-text {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px #000;
+        }
+       
+    </style>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="alert alert-{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+    <form method="POST" id="edit_form" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <!-- <button type="button" class="collapsible"><strong>Asset details</strong></button> -->
+        <button type="button" class="collapsible" onclick="toggleAssetDetails()"><strong>Asset details</strong></button>
+        <div class="container1"><!-- upto asset details -->
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.asset_number.id }}">Asset number<span style="color: red;">*</span></label>
+                     {{ form.asset_number(class="form-control", id=form.asset_number.id, required="required", readonly="readonly") }}
+                    
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.oem_serial_number.id }}">OEM Serial number<span style="color: red;">*</span></label>
+                    {{ form.oem_serial_number(class="form-control", id=form.oem_serial_number.id, required="required",readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.manufacturer.id }}">Manufacturer<span style="color: red;">*</span></label>
+                    {{ form.manufacturer(class="form-control", id=form.manufacturer.id, required="required",disabled="disabled") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.product_name.id }}">Product name<span style="color: red;">*</span></label>
+                    {{ form.product_name(class="form-control", id=form.product_name.id, required="required",readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.model_version.id }}">Product model/version<span style="color: red;">*</span></label>
+                    {{ form.model_version(class="form-control", id=form.model_version.id, required="required",readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.asset_category.id }}">Asset Category:</label>
+                    {{ form.asset_category(class="form-control", id=form.asset_category.id, disabled="disabled") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.product_category.id }}">Product Category:<span style="color: red;">*</span></label>
+                    {{ form.product_category(class="form-control", id=form.product_category.id, onchange="toggleSystemHostName()", required="required", disabled="disabled") }}
+                    <div id="systemHostNameField" style="display: none;">
+                        <label for="{{ form.system_host_name.id }}">System Host Name:</label>
+                        {{ form.system_host_name(type="text", class="form-control", id=form.system_host_name.id,readonly="readonly") }}
+                    </div>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.ip_address.id }}">IP address</label>
+                    {{ form.ip_address(type="text", class="form-control", id=form.ip_address.id,  oninput="validateIPv4(this)" ,readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.AIC_office.id }}">AIC Office:</label>
+                    {{ form.AIC_office(class="form-control", id=form.AIC_office.id, onchange="checkLocation()", disabled="disabled") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.asset_status.id }}">Asset Status:<span style="color: red;">*</span></label>
+                    {{ form.asset_status(class="form-control", id=form.asset_status.id, onchange="openUserDetails();handle(); ", required="required", disabled="disabled") }}
+                </div>               
+                <div id="statusForm">
+                    <!-- Asset Status Form Will Appear Here -->
+                </div>
+            </div>   
+        </div>
+        <button type="button" class="collapsible" id="purchaseDetailsButton"><strong>Purchase Details</strong></button>
+        <div class="container1">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.source_of_purchase.id }}">Source Of Purchase:</label><span style="color: red;">*</span>
+                    {{ form.source_of_purchase(class="form-control", id=form.source_of_purchase.id, required="required", disabled="disabled") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.contract_id.id }}">Contract ID/Order number:</label>
+                    {{ form.contract_id(class="form-control", id=form.contract_id.id, required="required",readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.invoice_id.id }}">Invoice number:</label><span style="color: red;">*</span>
+                    {{ form.invoice_id(class="form-control", id=form.invoice_id.id, required="required",readonly="readonly") }}
+                </div>
+               
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.invoice_date.id }}">Invoice Date:<span style="color: red;">*</span></label>
+                    {{ form.invoice_date(class="form-control", id=form.invoice_date.id,format="%d/%m/%Y", required="required",readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.invoice_amount.id }}">Invoice Amount:<span style="color: red;">*</span></label>
+                    {{ form.invoice_amount(class="form-control", id=form.invoice_amount.id, required="required",onchange="updateAmountPaid(this)",readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div class="container">
+                        <div id="uploadContainer">
+                        <div class="form-group">
+                            <label for="invoiceFiles">Upload Invoices (PDF, JPG, PNG) - Maximum 3 files:</label>
+                            <input type="file" class="form-control-file" id="invoiceFiles" name="invoiceFiles[]" multiple accept=".pdf, .jpg, .jpeg, .png" max="3">
+                        </div>
+                        <!-- <button type="button" onclick="uploadFiles()">Upload</button> -->
+                    </div>
+                    <h5>Uploaded Files:</h5>
+                    <ul id="downloadList">
+                        {% for file_name in uploaded_file_names %}
+                        <li>
+                            <a href="{{ url_for('asset_blueprint.download_file', asset_id=asset.id, filename=file_name) }}" target="_blank">{{ file_name }}</a>
+                            <a href="{{ url_for('asset_blueprint.delete_file', asset_id=asset.id, filename=file_name) }}" class="delete-link" data-confirm="Are you sure you want to delete this file?" data-filename="{{ file_name }}">
+                                <button class="delete-button">Delete</button>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="flash-messages">
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        <div class="alert alert-success" role="alert">
+                            {{ messages[0] }}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <input type="hidden" id="fileData" name="fileData">
+                    <input type="hidden" id="fileName" name="fileName">
+                </div>
+            </div>
+        </div>
+    </div>
+        
+        <button type="button" class="collapsible"><strong>Insurance Details</strong></button>
+        <div class="container1">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.insurance_coverage.id }}">Insurance Coverage:</label>
+                    {{ form.insurance_coverage(class="form-control", id=form.insurance_coverage.id, onchange="toggleInsuranceFields()", disabled="disabled") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.insurance_company.id }}"> Insurance Company:</label>
+                    {{ form.insurance_company(class="form-control insurance-field", id=form.insurance_company.id, onchange="toggleOtherInsurance()",readonly="readonly") }}
+                </div>
+                
+                <div class="form-group col-md-4" id="otherInsuranceCompanyField" style="display: none;">
+                    <label for="{{ form.other_insurance.id }}"> Other Insurance Company:</label>
+                    {{ form.other_insurance(class="form-control insurance-field", id=form.other_insurance.id,readonly="readonly") }}
+                </div>
+            
+                
+                
+                <div class="form-group col-md-4">
+                    <label for="{{ form.policy_number.id }}">Policy Number:</label>
+                    {{ form.policy_number(type="text", class="form-control insurance-field", id=form.policy_number.id,readonly="readonly") }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.start_date.id }}">Start Date:</label>
+                    {{ form.start_date(class="form-control insurance-field", id=form.start_date.id,readonly="readonly") }}
+                  
+                </div>
+                <div class="form-group col-md-4">
+                   
+                    <label for="{{ form.end_date.id }}">End Date:</label>
+                    {{ form.end_date(class="form-control insurance-field", id=form.end_date.id,readonly="readonly") }}
+                    
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.insured_amount.id }}">Insured Amount(in INR):</label>
+                    {{ form.insured_amount(class="form-control insurance-field", id=form.insured_amount.id,readonly="readonly") }}
+                </div>
+            </div>
+        </div>
+        <button type="button" class="collapsible"  id="warrantyDetailsButton"><strong>Warranty Details</strong> </button>
+        <div class="container1">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.oem_asset_warranty.id }}">OEM asset Warranty(months)<span style="color: red;">*</span></label>
+                    {{ form.oem_asset_warranty(class="form-control", id=form.oem_asset_warranty.id, disabled="disabled") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.oem_warranty_expiry_date.id }}">oem_warranty_expiry_date<span style="color: red;">*</span></label>
+                    {{ form.oem_warranty_expiry_date(class="form-control", id=form.oem_warranty_expiry_date.id,readonly="readonly") }}
+                    
+                </div>
+                
+            
+            </div>
+            
+        </div>
+        <div id="popupMessage" class="popup">
+            <span class="popup-text" id="popupText"></span>
+             </div>
+        
+
+
+        <button type="button" class="collapsible"><strong>Payment details</strong></button>
+        <div class="container1">
+            <div class="form-row">
+        
+                <div class="form-group col-md-4">
+                    <label for="{{ form.payment_done.id }}">Payment Done (Yes/No):</label>
+                    {{ form.payment_done(class="form-control", id=form.payment_done.id, onchange="togglePaymentFields()", disabled="disabled") }}
+                   
+                </div>
+                <div class="form-group col-md-4">
+                   <label for="{{ form.payment_date.id }}">Payment Date:</label>
+                    {{ form.payment_date(class="form-control", id=form.payment_date.id, required="required",type="date",readonly="readonly") }}
+
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.voucher_number.id }}">FMS Invoice Number:</label>
+                    {{ form.voucher_number(class="form-control payment-field", id=form.voucher_number.id, disabled="disabled",readonly="readonly") }}
+                </div>
+                
+            </div>
+            <div class="form-row">
+        
+                <div class="form-group col-md-4">
+                    <label for="{{ form.amount_paid.id }}">Amount Paid</label>
+                    {{ form.amount_paid(class="form-control", id=form.amount_paid.id,readonly="readonly") }}
+                </div>
+            </div>
+        </div>
+
+       
+        <button type="button" class="collapsible"><strong>Supplier Details</strong></button>
+        <div class="container1">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_name.id }}">Supplier Name:<span style="color: red;">*</span></label>
+                    {{ form.supplier_name(class="form-control", id=form.supplier_name.id,readonly="readonly") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_contact.id }}">Supplier Contact:<span style="color: red;">*</span></label>
+                    
+                    {{ form.supplier_contact(class="form-control", id=form.supplier_contact.id,readonly="readonly") }}
+                    <div id="supplierContactError" style="color: red;"></div>
+                </div>
+                
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_email.id }}">Supplier Email:</label>
+                    {{ form.supplier_email(class="form-control", id=form.supplier_email.id,readonly="readonly") }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_location.id }}">Supplier State:</label>
+                    {{ form.supplier_location(class="form-control", id=form.supplier_location.id, disabled="disabled") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_address.id }}">Supplier Address:</label>
+                    {{ form.supplier_address(class="form-control", id=form.supplier_address.id,readonly="readonly") }}
+                </div>
+            </div>
+        </div>
+       
+        <button type="button" class="collapsible"><strong>Report Issue</strong></button>
+        <div class="container1">
+            <div class="form-row">
+        
+                <div class="form-group col-md-4">
+                    <label for="{{ form.having_issue.id }}">Having Issue (Yes/No):</label>
+                    {{ form.having_issue(class="form-control", id=form.having_issue.id, onchange="toggleIssueFields()",readonly="readonly") }}
+                </div>
+              <div class="form-group col-md-4">
+            <label for="{{ form.incident_id.id }}">Incident ID:</label>
+            {{ form.incident_id(class="form-control", id=form.incident_id.id, disabled="disabled",readonly="readonly") }}
+             </div>
+            <div class="form-group col-md-4">
+            <label for="{{ form.remarks.id }}">Remarks:</label>
+            {{ form.remarks(class="form-control", id=form.remarks.id, disabled="disabled",readonly="readonly") }}
+            </div>
+        </div>
+    </div>
+
+        
+ 
+        <div class="container1">
+          
+            <div id="specificationsForm">
+                <!-- Device Specifications Form Will Appear Here -->
+            </div>
+        </div>
+
+        <script>
+            function showAssetDetails() {
+                console.log;
+                var statusForm = document.getElementById('statusForm');
+                var status = document.getElementById('{{ form.asset_status.id }}').value;
+                // Check if Asset Status is already selected, and show details if necessary
+
+                if (status === 'Assigned') {
+                    statusForm.innerHTML = `
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_name.id }}">User Name:</label>
+                    {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)",readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.domain_name.id }}">Domain Name(Mail ID):</label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id, onchange="fetchUserDetails(this.value)", disabled="disabled") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.assigned_start_date.id }}">Assigned Date:<span style="color: red;">*</span></label>
+                    {{ form.assigned_start_date(class="form-control", id=form.assigned_start_date.id, readonly="readonly") }}
+                </div>
+            
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id, onchange="checkLocation()", readonly="readonly") }}                
+                </div>
+
+                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
+                    <label for="{{ form.other_location.id }}">Other Location:</label>
+                    {{ form.other_location(class="form-control", id=form.other_location.id, readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_email.id }}">Email ID:</label>
+                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.contact.id }}">Contact:</label>
+                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id, required="required", onchange="toggleFieldVisibility('company', 'other_company')", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4" id="otherCompanyContainer" style="display: none;">
+                    <label for="{{ form.other_company.id }}">Other Company:</label>
+                    {{ form.other_company(class="form-control", id=form.other_company.id, readonly="readonly") }}
+                </div>
+            </div>
+                    `;
+                }
+                else if (status === 'Retained') {
+                    statusForm.innerHTML = `
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.retain_amount.id }}">Retain Amount:<span style="color: red;">*</span></label>
+                    {{ form.retain_amount(class="form-control", id=form.retain_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.retain_date.id }}">Retain Date:<span style="color: red;">*</span></label>
+                    {{ form.retain_date(class="form-control", id=form.retain_date.id, readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_name.id }}">User Name:</label>
+                    {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id,onchange="fetchUserDetails(this.value)", disabled="disabled") }}
+                </div>  
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id, onchange="checkLocation()", readonly="readonly") }}                
+                </div>
+
+                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
+                    <label for="{{ form.other_location.id }}">Other Location:</label>
+                    {{ form.other_location(class="form-control", id=form.other_location.id, readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_email.id }}">Email ID:</label>
+                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.contact.id }}">Contact:</label>
+                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id, required="required", onchange="toggleFieldVisibility('company', 'other_company')", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id, readonly="readonly") }}
+                    </div>
+                </div>
+            </div>
+
+    `;
+                }
+                else if (status === 'Transferred') {
+                    statusForm.innerHTML = `
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transfer_date.id }}">Transfer Date:<span style="color: red;">*</span></label>
+                    {{ form.transfer_date(class="form-control", id=form.transfer_date.id, readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_from.id }}">Transferred From:<span style="color: red;">*</span></label>
+                    {{ form.transferred_from(class="form-control", id=form.transferred_from.id, disabled="disabled") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_to.id }}">Transferred To:<span style="color: red;">*</span></label>
+                    {{ form.transferred_to(class="form-control", id=form.transferred_to.id, disabled="disabled") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_amount.id }}">Transferred Amount:<span style="color: red;">*</span></label>
+                    {{ form.transferred_amount(class="form-control", id=form.transferred_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?", readonly="readonly") }}
+                </div>
+                
+                <div class="form-group col-md-4">
+                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id,onchange="fetchUserDetails(this.value)", disabled="disabled") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_name.id }}">User Name:</label>
+                    {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_email.id }}">Email ID:</label>
+                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.contact.id }}">Contact:</label>
+                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id, onchange="checkLocation()", readonly="readonly") }}                
+                </div>
+
+                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
+                    <label for="{{ form.other_location.id }}">Other Location:</label>
+                    {{ form.other_location(class="form-control", id=form.other_location.id, readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id, required="required", onchange="toggleFieldVisibility('company', 'other_company')", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id, readonly="readonly") }}
+                    </div>
+                </div>
+            </div>
+
+    `;
+                } else if (status === 'Disposed') {
+                    statusForm.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.disposed_date.id }}">Disposed Date:<span style="color: red;">*</span></label>
+                        {{ form.disposed_date(class="form-control", id=form.disposed_date.id, readonly="readonly") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.disposed_amount.id }}">Disposed Amount:<span style="color: red;">*</span></label>
+                        {{ form.disposed_amount(class="form-control", id=form.disposed_amount.id, readonly="readonly") }}
+                    </div>
+                </div>
+    `;
+                }
+                else if (status === 'In Stock') {
+                    statusForm.innerHTML = `
+                    <div class="form-row">
+                        <label for="{{ form.in_stock_start_date.id }}">Instock Date:<span style="color: red;">*</span></label>
+                        {{ form.in_stock_start_date(class="form-control", id=form.in_stock_start_date.id,  required="required", readonly="readonly") }}
+                    </div>
+            
+    `;
+                }
+                else if (status === 'Not Working') {
+                    statusForm.innerHTML = `
+        
+            <div class="form-row form-group">
+                <label for="{{ form.not_working_start_date.id }}">Not Working Start Date:<span style="color: red;">*</span></label>
+                {{ form.not_working_start_date(class="form-control", id=form.not_working_start_date.id, readonly="readonly") }} 
+            </div>
+    `;
+                }
+                else if (status === 'End Of Life') {
+                    statusForm.innerHTML = `
+        
+            <div class="form-row">
+                <label for="{{ form.end_of_life_start_date.id }}">End Of Life Start Date:<span style="color: red;">*</span></label>
+                {{ form.end_of_life_start_date(class="form-control", id=form.end_of_life_start_date.id, readonly="readonly") }}
+            </div>
+    `;
+                }
+                console.log("Show Asset Details: assetStatus =", status);
+            }
+        </script>
+
+        <script>
+            function toggleAssetDetails() {
+                var statusForm = document.getElementById('statusForm');
+                if (statusForm.style.display === 'none' || statusForm.style.display === '') {
+                    statusForm.style.display = 'block';
+                } else {
+                    statusForm.style.display = 'none';
+                }
+                console.log("Toggle Asset Details: statusForm.style.display =", statusForm.style.display);
+            }
+            
+            showAssetDetails();
+            // Call the function to show Asset Status details when editing a page
+        </script>
+
+        <script>
+            function showDeviceSpecifications() {
+                const deviceType = document.getElementById('device_type').value;
+                const specificationsForm = document.getElementById('specificationsForm');
+
+                specificationsForm.innerHTML = ''; // Clear previous content
+
+                if (deviceType === 'laptopDesktop') {
+                    specificationsForm.innerHTML = `
+                                        
+        <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_os.id }}">Operating System:</label>
+                    {{ form.desk_lap_os(class="form-control", id=form.desk_lap_os.id, placeholder="Enter Operating System") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_hdd_type.id }}">HDD Type:</label>
+                    {{ form.desk_lap_hdd_type(class="form-control", id=form.desk_lap_hdd_type.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_hdd_size.id }}">HDD Size (GB):</label>
+                    {{ form.desk_lap_hdd_size(class="form-control", id=form.desk_lap_hdd_size.id) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_type.id }}">RAM Type:</label>
+                    {{ form.desk_lap_ram_type(class="form-control", id=form.desk_lap_ram_type.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_size.id }}">RAM Size:</label>
+                    {{ form.desk_lap_ram_size(class="form-control", id=form.desk_lap_ram_size.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_frequency.id }}">RAM Frequency (MHz):</label>
+                    {{ form.desk_lap_ram_frequency(class="form-control", id=form.desk_lap_ram_frequency.id) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_expandable.id }}">RAM Expandable Upto (GB):</label>
+                    {{ form.desk_lap_ram_expandable(class="form-control", id=form.desk_lap_ram_expandable.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_slots.id }}">Number of RAM Slots:</label>
+                    {{ form.desk_lap_ram_slots(class="form-control", id=form.desk_lap_ram_slots.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_hdmi_port.id }}">HDMI Port (Yes/No):</label>
+                    {{ form.desk_lap_hdmi_port(class="form-control", id=form.desk_lap_hdmi_port.id) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_display_size.id }}">Display Size (Inch):</label>
+                    {{ form.desk_lap_display_size(class="form-control", id=form.desk_lap_display_size.id, placeholder="Enter Display Size") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_graphics_card_size.id }}">Graphics Card Size (GB):</label>
+                    {{ form.desk_lap_graphics_card_size(class="form-control", id=form.desk_lap_graphics_card_size.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_graphics_card_version.id }}">Graphics Card Version:</label>
+                    {{ form.desk_lap_graphics_card_version(class="form-control", id=form.desk_lap_graphics_card_version.id) }}
+                </div>
+        </div>
+
+                                        
+                                    `;
+
+                } else if (deviceType === 'printer') {
+                    specificationsForm.innerHTML = `
+                                    
+                                    
+                                        
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.printer_type.id }}">Printer Type:</label>
+                {{ form.printer_type(class="form-control", id=form.printer_type.id, placeholder="Enter Printer Type") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.printing_type.id }}">Printing Type:</label>
+                {{ form.printing_type(class="form-control", id=form.printing_type.id) }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.printer_connectivity.id }}">Connectivity:</label>
+                {{ form.printer_connectivity(class="form-control", id=form.printer_connectivity.id) }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.printer_toner.id }}">Printer Toner Name:</label>
+                {{ form.printer_toner(class="form-control", id=form.printer_toner.id, placeholder="Enter Printer Toner Name") }}
+            </div>
+        </div>
+
+
+                            
+                                    `;
+                } else if (deviceType === 'HDD Specs') {
+                    specificationsForm.innerHTML = `
+                                        
+                                    
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.hdd_size.id }}">HDD Size (GB):</label>
+                    {{ form.hdd_size(class="form-control", id=form.hdd_size.id, placeholder="Enter HDD Size") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.hdd_type.id }}">HDD Type:</label>
+                    {{ form.hdd_type(class="form-control", id=form.hdd_type.id, placeholder="Enter HDD Type") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.hdd_connectivity.id }}">Connectivity:</label>
+                    {{ form.hdd_connectivity(class="form-control", id=form.hdd_connectivity.id) }}
+                </div>
+            </div>
+
+                                        
+                                    `;
+                } else if (deviceType === 'tabletMobile') {
+                    specificationsForm.innerHTML = `
+                                
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_os.id }}">Operating System:</label>
+                {{ form.tab_os(class="form-control", id=form.tab_os.id, placeholder="Enter Operating System") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_storage.id }}">Storage (ROM) GB:</label>
+                {{ form.tab_storage(class="form-control", id=form.tab_storage.id, placeholder="Enter Storage (ROM) GB") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_ram_size.id }}">RAM Size (GB):</label>
+                {{ form.tab_ram_size(class="form-control", id=form.tab_ram_size.id, placeholder="Enter RAM Size") }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_display_size.id }}">Display Size (Inch):</label>
+                {{ form.tab_display_size(class="form-control", id=form.tab_display_size.id, placeholder="Enter Display Size") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_stylus.id }}">Stylus (Yes/No):</label>
+                {{ form.tab_stylus(class="form-control", id=form.tab_stylus.id) }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_connectivity.id }}">Connectivity:</label>
+                {{ form.tab_connectivity(class="form-control", id=form.tab_connectivity.id) }}
+            </div>
+        </div>
+
+                    
+                                        
+                                    `;
+                } else if (deviceType === 'monitor') {
+                    specificationsForm.innerHTML = `
+                                        
+                                    
+                                        
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.monitor_display_size.id }}">Display Size (Inch):</label>
+                    {{ form.monitor_display_size(class="form-control", id=form.monitor_display_size.id, placeholder="Enter Display Size") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.monitor_screen_type.id }}">Screen Type</label>
+                    {{ form.monitor_screen_type(class="form-control", id=form.monitor_screen_type.id) }}
+                </div>
+            
+            </div>
+                                        
+                                    `;
+                } else if (deviceType === 'ups') {
+                    specificationsForm.innerHTML = `
+                                        
+                            
+                                            <!-- Add UPS fields here -->
+        <div class="form-row">
+            <div class="container mt-4">
+                <label for="{{ form.ups_capacity.id }}">UPS Capacity (Kva):</label>
+                {{ form.ups_capacity(class="form-control", id=form.ups_capacity.id, placeholder="Enter UPS Capacity (Kva)") }}
+            </div>
+            <div class="container mt-4">
+                <label for="{{ form.ups_amc.id }}">AMC (Yes/No):</label>
+                {{ form.ups_amc(class="form-control", id=form.ups_amc.id) }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="container mt-4">
+                
+                <label for="{{ form.ups_start_date.id }}">UPS Start Date:</label>
+                {{ form.ups_start_date(class="form-control", id=form.ups_start_date.id, ) }}
+                
+            
+            </div>
+            <div class="container mt-4">
+            
+                <label for="{{ form.ups_end_date.id }}">UPS End Date:</label>
+                {{ form.ups_end_date(class="form-control", id=form.ups_end_date.id, ) }}
+                    
+            </div>
+        </div>
+                                    
+                                    `;
+
+                }
+
+            }
+
+            window.onload = showDeviceSpecifications;
+            
+            // working one upload files 
+
+            var coll = document.getElementsByClassName("collapsible");
+            var i;
+
+            for (i = 0; i < coll.length; i++) {
+                coll[i].addEventListener("click", function () {
+                    this.classList.toggle("active");
+                    var content = this.nextElementSibling;
+                    if (content.style.display === "block") {
+                        content.style.display = "none";
+                    } else {
+                        content.style.display = "block";
+                    }
+                });
+            }
+
+
+        </script>
+    
+    
+    </form>
+</div>
+
+
+<style>
+    .h6-format {
+        color: red;
+        font-weight: 100;
+        text-decoration: none;
+        /*underline;*/
+    }
+    .bc-color{
+        background-color: #100;
+        color: white;
+    }
+</style>
+
+{% endblock %}
+
+
+
+

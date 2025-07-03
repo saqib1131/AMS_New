@@ -1,0 +1,91 @@
+{% extends 'base1.html' %}
+{% block title %}Add User Page{% endblock %}
+{% block bodyContent %}
+
+<style>
+    h2 {
+        text-align: center;
+    }
+    .awesome-header {
+        font-size: 25px;
+        text-align: center;
+
+        color: green;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+</style>
+<div class="container">
+    <div class=" row justify-content-center">
+        
+        <div class="col-sm-6 mt-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                    {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+            <div class="text-center">
+                <hr>
+                <h3 class="awesome-header">Add User</h3>
+                <p style="color: darkgoldenrod;">Add a User by Completing the Form below</p>
+                <hr>
+            </div>
+            <form method="POST" action="/add-user">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    <label for="{{ form.AIC_office.id }}">AIC Office:<span style="color: red;">*</span></label>
+                    {{ form.AIC_office(class="form-control", id=form.AIC_office.id) }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.user_email.id }}">{{ form.user_email.label }}<span style="color: red;">*</span></label>
+                    {{ form.user_email(class="form-control", id=form.user_email.id) }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.password.id }}">{{ form.password.label }}<span style="color: red;">*</span></label>
+                    {{ form.password(class="form-control", id=form.password.id) }}
+                </div>
+            
+                <div class="form-group">
+                    <label for="{{ form.pass_confirm.id }}">{{ form.pass_confirm.label }}<span style="color: red;">*</span></label>
+                    {{ form.pass_confirm(class="form-control", id=form.pass_confirm.id) }}
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+                
+            </form>            
+        </div>
+    </div>
+  
+</div>
+<script>
+    function validateEmail(event) {
+    const emailInput = document.getElementById('user_email').value;
+    const emailError = document.getElementById('emailError');
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(emailInput)) {
+        emailError.textContent = 'Please enter a valid email address';
+        return false; // Prevent form submission
+    } 
+    else {
+        emailError.textContent = ''; // Clear any previous error message
+        return true; // Allow form submission
+    }
+}
+
+</script>
+
+<style>
+    .h6-format {
+        color: red;
+        font-weight: 100;
+        text-decoration: none;
+        /*underline;*/
+    }
+    .bc-color{
+        background-color: #100;
+        color: white;
+    }
+</style>
+
+{% endblock %}

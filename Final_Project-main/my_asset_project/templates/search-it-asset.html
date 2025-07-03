@@ -1,0 +1,405 @@
+{% extends "base1.html" %}
+{% block bodyContent %}
+    {# Code for allowing access to the 'search_asset' page #}
+<style>
+    .awesome-header {
+        font-size: 25px;
+        text-align: center;
+
+        color: green;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+
+        margin-bottom: 20px;
+        padding-right: 20px;
+    }
+
+    .form-row {
+
+        margin-bottom: 20px;
+        padding-right: 20px;
+    }
+
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+
+    .container1 {
+        padding: 0 18px;
+        overflow: hidden;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-left: 10px;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="container" style="text-align: center;">
+                <div class="card-body">
+                    <a href="/add_asset"><button type="button" class="btn btn-success">Add New Asset</button></a>
+                    <a href="/bulk_upload"><button type="button" class="btn btn-success">Bulk Upload Asset</button></a>
+                    <a href="/asset_life_cycle"><button type="button" class="btn btn-success">Asset Life Cycle</button></a>
+                    <a href="/user-lifecycle"><button type="button" class="btn btn-success">User Life Cycle</button></a>
+
+    
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="text-center">
+        <hr>
+        <h3 class="awesome-header">Search IT Asset</h3>
+        <p style="color: darkgoldenrod;">Efficiently and Effortlessly Search Assets by Completing the Form below</p>
+        <hr>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <div class="container1">
+                    <form class="flex-form" id="form-fields" method="POST">
+                      
+                        {{ form.hidden_tag() }}
+                        <!-- First row -->
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.asset_number.id }}">{{ form.asset_number.label }}</label>
+                                {{ form.asset_number(class="form-control", id=form.asset_number.id) }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.oem_serial_number.id }}">{{ form.oem_serial_number.label }}</label>
+                                {{ form.oem_serial_number(class="form-control", id=form.oem_serial_number.id) }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.asset_status.id }}">{{ form.asset_status.label }}</label>
+                                {{ form.asset_status(class="form-control", id=form.asset_status.id) }}
+
+                                <div id="status-count"></div>
+                            </div>
+                        </div>
+                        <!-- Second row -->
+                        <div class="form-row" id="form-fields">
+                           
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.product_category.id }}">Product Category:</label>
+                                {{ form.product_category(class="form-control", id=form.product_category.id) }}
+                            </div>
+                            
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.AIC_office.id }}">AIC Office:</label>
+                                {{ form.AIC_office(class="form-control", id=form.AIC_office.id, onchange="checkLocation()") }}
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                                {{ form.domain_name(class="form-control", id=form.domain_name.id,onchange="fetchUserDetails(this.value)") }}
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="{{ form.date_added_from.id }}">From</label>
+                                {{ form.date_added_from(class="form-control", id=form.date_added_from.id) }}
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="{{ form.date_added_to.id }}">To</label>
+                                {{ form.date_added_to(class="form-control", id=form.date_added_to.id) }}
+                            </div>
+                 
+                        </div>
+                      
+            
+                        <div class="mt-4 mr-4" style="float: right;">
+                            {{ form.submit(class="btn btn-primary",id="submit",onclick="countResultRows()") }}
+                            <button type="button" class="btn btn-secondary" id="search-button"
+                                onclick="clearForm()">Clear</button>
+                        </div>
+                        
+                    
+                </div>
+
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="alert-box">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+        </div>
+        <!-- Search button -->
+
+        </form>
+    </div>
+</div>
+</div>
+
+
+<div class="container" id="descTable">
+    <div id="results">
+        
+        <table id="result-table">
+            <thead>
+                <tr>
+                    <th>Asset Number</th>
+                    <th>Serial Number</th>
+                    <th>Asset Status</th>
+                    <th>Domain Name</th>
+                    <th>Product Category</th>
+                    <th>AIC Office</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="result-rows">
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.asset_number }}</td>
+                    <td>{{ result.oem_serial_number }}</td>
+                    <td>{{ result.asset_status }}</td>
+                    <td>{{ result.domain_name }}</td>
+                    <td>{{ result.product_category }}</td>
+                    <td>{{ result.AIC_office }}</td>
+                    <td>
+                        <button onclick="editAsset('{{result.id}}')" 
+                            class="text-black edit-button" name=view-button id=view-button>Edit</button>
+                        /
+                        <button onclick="setAssetId('{{result.id}}')" 
+                            class="text-black view-button" name=view-button id=view-button
+                            style="font-size: 15px;">View</button>
+
+                    </td>
+                </tr>
+                {% endfor %}
+    
+            </tbody>
+            
+        </table>
+    </div>
+    <BR>
+    <button id="downloadButton" type="button" class="btn btn-success" style="float: right;">Download Report</button>
+
+</div>
+
+
+</div>
+<script>
+    function editAsset(assetId) {
+    $.ajax({
+        type: 'POST',
+        url: '/set_asset_id',
+        data: { 'asset_id': assetId },
+        success: function(response) {
+            console.log("Done")
+            window.location.href="/edit_asset";
+
+        },
+        error: function(error) {
+            // Handle the error if needed
+        }
+    });
+}
+function setAssetId(assetId) {
+    
+    $.ajax({
+        type: 'POST',
+        url: '/set_asset_id',
+        data: { 'asset_id': assetId },
+        success: function(response) {
+            console.log("Done")
+            window.location.href="/view_asset";
+
+        },
+        error: function(error) {
+            // Handle the error if needed
+        }
+    });
+}
+
+
+    document.getElementById("downloadButton").addEventListener("click", () => {
+        const table = document.getElementById("result-table");
+        const rows = table.querySelectorAll("tr");
+        const csvData = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = [], cols = rows[i].querySelectorAll("td, th");
+            for (let j = 0; j < cols.length; j++) {
+                row.push(cols[j].innerText);
+            }
+            csvData.push(row.join(","));
+        }
+
+        const csvString = csvData.join("\n");
+        const blob = new Blob([csvString], { type: "text/csv" });
+        const link = document.createElement("a");
+        link.setAttribute("href", URL.createObjectURL(blob));
+        link.setAttribute("download", "table-data.csv");
+        link.click();
+    });
+
+    document.getElementById("search-button").addEventListener("click", function () {
+        var tableData = document.getElementById("descTable");
+        tableData.style.display = tableData.style.display === "block";
+
+        var div = document.getElementById("myDiv");
+        if (div.style.display === "none") {
+            div.style.display = "block";
+        } else {
+            div.style.display = "none";
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const editButtons = document.querySelectorAll(".edit-button");
+        const viewButtons = document.querySelectorAll(".view-button");
+
+        editButtons.forEach(editButton => {
+            editButton.addEventListener("click", function () {
+                const row = editButton.closest("tr");
+                const cells = row.getElementsByTagName("td");
+                const form = document.getElementById("form-fields");
+
+                form.asset_number.value = cells[0].innerText;
+                form.oem_serial_number.value = cells[1].innerText;
+                form.asset_status.value = cells[2].innerText;
+                form.domain_name.value = cells[3].innerText;
+                form.product_category.value = cells[4].innerText;
+                form.AIC_office.value = cells[5].innerText;
+
+                form.querySelectorAll("input, select, textarea").forEach(field => {
+                    field.removeAttribute("readonly");
+                });
+            });
+        });
+
+        viewButtons.forEach(viewButton => {
+            viewButton.addEventListener("click", function () {
+                const row = viewButton.closest("tr");
+                const cells = row.getElementsByTagName("td");
+                const form = document.getElementById("form-fields");
+
+                form.asset_number.value = cells[0].innerText;
+                form.oem_serial_number.value = cells[1].innerText;
+                form.asset_status.value = cells[2].innerText;
+                form.domain_name.value = cells[3].innerText;
+                form.product_category.value = cells[4].innerText;
+                form.AIC_office.value = cells[5].innerText;
+
+                form.querySelectorAll("input, select, textarea").forEach(field => {
+                    field.setAttribute("readonly", "readonly");
+                });
+            });
+        });
+    });
+
+    function clearForm() {
+        var v1 = document.getElementById('asset_number');
+        var v2 = document.getElementById('oem_serial_number');
+        var v3 = document.getElementById('asset_status');
+        var v4 = document.getElementById('product_category');
+        var v5 = document.getElementById('AIC_office');
+        var v6 = document.getElementById('domain_name');
+        var v7 = document.getElementById('date_added_from');
+        var v8 = document.getElementById('date_added_to');
+        console.log('This is a message for clear debugging purposes.');
+        v1.value="";
+        v2.value="";
+        v3.value="";
+        v4.value="";
+        v6.value="";
+        v7.value="";
+        v8.value="";
+        document.getElementById('status-count').textContent = ''; // Clear status count
+    }
+</script>
+<script>
+    document.getElementById("submit").addEventListener("click", function () {
+        // Your search logic here
+
+        // After performing the search, check if there are any results
+        var results = document.querySelectorAll('#result-rows tr');
+
+        if (results.length === 0) {
+            displayPopup(); // Show the popup if no results
+        } else {
+            // Logic to display search results in the table
+        }
+
+        // Other existing logic...
+    });
+
+    // Function to display the pop-up
+    function displayPopup() {
+        var popup = document.getElementById('noAssetsPopup');
+        popup.style.display = "block";
+    }
+
+    // Function to close the pop-up
+    function closePopup() {
+        var popup = document.getElementById('noAssetsPopup');
+        popup.style.display = "none";
+    }
+
+    // Other existing JavaScript logic...
+</script>
+<script>
+    // Function to count the occurrences of the selected asset_status
+    function countStatus() {
+        var selectedStatus = document.getElementById('asset_status').value;
+        var results = document.querySelectorAll('#result-rows tr');
+        var count = 0;
+
+        for (var i = 0; i < results.length; i++) {
+            var statusCell = results[i].querySelector('td:nth-child(3)'); // Assuming asset_status is in the third column
+
+            if (statusCell && statusCell.textContent === selectedStatus) {
+                count++;
+            }
+        }
+
+        document.getElementById('status-count').textContent = 'Count of ' + selectedStatus + ': ' + count;
+    }
+
+    // Attach the countStatus function to the dropdown change event
+    document.getElementById('asset_status').addEventListener('change', countStatus);
+
+    // Initial count when the page loads
+    countStatus();
+</script>
+
+<style>
+    .h6-format {
+        color: red;
+        font-weight: 100;
+        text-decoration: none;
+        /*underline;*/
+    }
+
+</style>
+<br>
+
+{% endblock %}

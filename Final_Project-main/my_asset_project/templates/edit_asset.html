@@ -1,0 +1,1555 @@
+{% extends "base1.html" %}
+{% block bodyContent %}
+<style>
+    .awesome-header {
+        font-size: 25px;
+        text-align: center;
+
+        color: green;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+</style>
+<div class="row">
+    <div class="container" style="text-align: center;">
+        <div class="card-body">
+            <a href="/search_assets"><button type="button" class="btn btn-success">Search Asset</button></a>
+            <a href="/add_asset"><button type="button" class="btn btn-success">Add New Asset</button></a>
+            <a href="/bulk_upload"><button type="button" class="btn btn-success">Bulk Upload Asset</button></a>
+            <a href="/asset_life_cycle"><button type="button" class="btn btn-success">Asset Life Cycle</button></a>
+
+        </div>
+    </div>
+</div>
+<div class="container">
+    <br>
+    <h1 class="awesome-header">Edit Asset Form</h1>
+    <p style="color: darkgoldenrod; text-align: center;">Efficiently and Effortlessly Edit Assets by Completing the Form
+        below</p>
+    <br>
+    <style>
+        .collapsible {
+            background-color: green;
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .container1 {
+            padding: 0 18px;
+            overflow: hidden;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-text {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px #000;
+        }
+    </style>
+    <form method="POST" id="edit_form" enctype="multipart/form-data">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="flashes" style="list-style-type: none;">
+            {% for category, message in messages %}
+            <li class="alert alert-{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {{ form.hidden_tag() }}
+        <div class="container form-check">
+            {{ form.editOptions.label }}
+            {{ form.editOptions(class="form-control") }}
+        </div>
+        <br>
+        <!-- <button type="button" class="collapsible"><strong>Asset details</strong></button> -->
+        <div class="container1" id="asd" style="display: none;"><!-- upto asset details -->
+            <div class="form-row" >
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.asset_number.id }}">Asset number<span style="color: red;">*</span></label>
+                    {{ form.asset_number(class="form-control", id=form.asset_number.id, required="required",
+                    readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.oem_serial_number.id }}">OEM Serial number<span
+                            style="color: red;">*</span></label>
+                    {{ form.oem_serial_number(class="form-control", id=form.oem_serial_number.id, required="required")}}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.manufacturer.id }}">Manufacturer<span style="color: red;">*</span></label>
+                    {{ form.manufacturer(class="form-control", id=form.manufacturer.id, required="required") }}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.product_name.id }}">Product name<span style="color: red;">*</span></label>
+                    {{ form.product_name(class="form-control", id=form.product_name.id, required="required") }}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.model_version.id }}">Product model/version<span
+                            style="color: red;">*</span></label>
+                    {{ form.model_version(class="form-control", id=form.model_version.id, required="required") }}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.asset_category.id }}">Asset Classification:</label>
+                    {{ form.asset_category(class="form-control", id=form.asset_category.id) }}
+                </div>
+
+
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.product_category.id }}">Product Category:<span
+                            style="color: red;">*</span></label>
+                    {{ form.product_category(class="form-control", id=form.product_category.id,
+                    onchange="toggleSystemHostName()",onchange="showDeviceSpecifications()", required="required") }}
+                    <div id="systemHostNameField" style="display: none;">
+                        <label for="{{ form.system_host_name.id }}">System Host Name:</label>
+                        {{ form.system_host_name(type="text", class="form-control", id=form.system_host_name.id) }}
+                    </div>
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.ip_address.id }}">IP address</label>
+                    {{ form.ip_address(type="text", class="form-control",
+                    id=form.ip_address.id,oninput="validateIPv4(this)") }}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.AIC_office.id }}">AIC Office:<span style="color: red;">*</span></label>
+                    {{ form.AIC_office(class="form-control", id=form.AIC_office.id) }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.asset_status.id }}">Asset Status:<span style="color: red;">*</span></label>
+                    {{ form.asset_status(class="form-control", id=form.asset_status.id,
+                    onchange="showAssetDetails();clearFieldsForStatusChange();", required="required") }}
+                </div>
+
+                <div id="statusForm">
+                    <!-- Asset Status Form Will Appear Here -->
+                </div>
+
+            </div>
+        </div>
+        <div class="container1" id="npd" style="display: none;">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.source_of_purchase.id }}">Source Of Purchase:</label><span
+                        style="color: red;">*</span>
+                    {{ form.source_of_purchase(class="form-control", id=form.source_of_purchase.id, required="required")
+                    }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.contract_id.id }}">Contract ID/Order number:</label>
+                    {{ form.contract_id(class="form-control", id=form.contract_id.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.invoice_id.id }}">Invoice number:</label><span style="color: red;">*</span>
+                    {{ form.invoice_id(class="form-control", id=form.invoice_id.id, required="required") }}
+                </div>
+
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.invoice_date.id }}">Invoice Date:<span style="color: red;">*</span></label>
+                    {{ form.invoice_date(class="form-control", id=form.invoice_date.id,format="%d/%m/%Y",
+                    required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.invoice_amount.id }}">Invoice Amount:<span style="color: red;">*</span></label>
+                    {{ form.invoice_amount(class="form-control", id=form.invoice_amount.id,
+                    required="required",onchange="updateAmountPaid(this)") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <div class="container">
+                        <div id="uploadContainer">
+                            <div class="form-group">
+                                <label for="invoiceFiles">Upload Invoices (PDF, JPG, PNG) - Maximum 3 files:</label>
+                                <input type="file" class="form-control-file" id="invoiceFiles" name="invoiceFiles[]"
+                                    multiple accept=".pdf, .jpg, .jpeg, .png" max="3">
+                            </div>
+                            <button type="button" onclick="uploadFiles()">Upload</button>
+                        </div>
+                        <h5>Uploaded Files:</h5>
+                        <ul id="downloadList">
+                            {% for file_name in uploaded_file_names %}
+                            <li>
+                                <a href="{{ url_for('asset_blueprint.download_file', asset_id=asset.id, filename=file_name) }}"
+                                    target="_blank">{{ file_name }}</a>
+                                <a href="{{ url_for('asset_blueprint.delete_file', asset_id=asset.id, filename=file_name) }}"
+                                    class="delete-link" data-confirm="Are you sure you want to delete this file?"
+                                    data-filename="{{ file_name }}">
+                                    <button class="delete-button">Delete</button>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                        <input type="hidden" id="fileData" name="fileData">
+                        <input type="hidden" id="fileName" name="fileName">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container1" id="id" style="display: none;">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.insurance_coverage.id }}">Insurance Coverage:</label>
+                    {{ form.insurance_coverage(class="form-control", id=form.insurance_coverage.id,
+                    onchange="toggleInsuranceFields()") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.insurance_company.id }}"> Insurance Company:</label>
+                    {{ form.insurance_company(class="form-control insurance-field", id=form.insurance_company.id,
+                    onchange="toggleOtherInsurance()",disabled="true") }}
+                </div>
+
+                <div class="form-group col-md-4" id="otherInsuranceCompanyField" style="display: none;">
+                    <label for="{{ form.other_insurance.id }}"> Other Insurance Company:</label>
+                    {{ form.other_insurance(class="form-control insurance-field", id=form.other_insurance.id) }}
+                </div>
+
+
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.policy_number.id }}">Policy Number:</label>
+                    {{ form.policy_number(type="text", class="form-control insurance-field",
+                    id=form.policy_number.id,disabled="true")
+                    }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.start_date.id }}">Start Date:</label>
+                    {{ form.start_date(class="form-control insurance-field", id=form.start_date.id,disabled="true") }}
+
+                </div>
+                <div class="form-group col-md-4">
+
+                    <label for="{{ form.end_date.id }}">End Date:</label>
+                    {{ form.end_date(class="form-control insurance-field", id=form.end_date.id,disabled="true") }}
+
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.insured_amount.id }}">Insured Amount(in INR):</label>
+                    {{ form.insured_amount(class="form-control insurance-field", id=form.insured_amount.id,type="text",
+                    pattern="[0-9]+([.,][0-9]+)?",disabled="true") }}
+                </div>
+            </div>
+        </div>
+        <div class="container1" id="wd" style="display: none;">
+
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.oem_asset_warranty.id }}">OEM asset Warranty(months)<span
+                            style="color: red;">*</span></label>
+                    {{ form.oem_asset_warranty(class="form-control", id=form.oem_asset_warranty.id, required='required')
+                    }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.oem_warranty_expiry_date.id }}">oem_warranty_expiry_date<span
+                            style="color: red;">*</span></label>
+                    {{ form.oem_warranty_expiry_date(class="form-control", id=form.oem_warranty_expiry_date.id) }}
+
+                </div>
+
+
+            </div>
+
+        </div>
+        <div class="container1" id="payd" style="display: none;">
+            <div class="form-row">
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.payment_done.id }}">Payment Done (Yes/No):</label>
+                    {{ form.payment_done(class="form-control", id=form.payment_done.id,
+                    onchange="togglePaymentFields()") }}
+
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.payment_date.id }}">Payment Date:</label>
+                    {{ form.payment_date(class="form-control payment-field", id=form.payment_date.id,
+                    required="required",type="date",disabled="true")
+                    }}
+
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.voucher_number.id }}">FMS Invoice Number:</label>
+                    {{ form.voucher_number(class="form-control payment-field", id=form.voucher_number.id,disabled="true"
+                    ) }}
+                </div>
+
+            </div>
+            <div class="form-row">
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.amount_paid.id }}">Amount Paid</label>
+                    {{ form.amount_paid(class="form-control", id=form.amount_paid.id,type="text",
+                    pattern="[0-9]+([.,][0-9]+)?",disabled="true") }}
+                </div>
+            </div>
+        </div>
+
+        <div class="container1" id="nsd" style="display: none;">
+
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_name.id }}">Supplier Name:<span style="color: red;">*</span></label>
+                    {{ form.supplier_name(class="form-control", id=form.supplier_name.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_contact.id }}">Supplier Contact:<span
+                            style="color: red;">*</span></label>
+
+                    {{ form.supplier_contact(class="form-control",
+                    id=form.supplier_contact.id,type="text",pattern="[0-9]{10}",title="Please enter a 10-digit number")
+                    }}
+                    <div id="supplierContactError" style="color: red;"></div>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_email.id }}">Supplier Email:</label>
+                    {{ form.supplier_email(class="form-control", id=form.supplier_email.id,type="email",title="Please
+                    enter a valid email address") }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_location.id }}">Supplier Location :</label>
+                    {{ form.supplier_location(class="form-control", id=form.supplier_location.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.supplier_address.id }}">Supplier Address:</label>
+                    {{ form.supplier_address(class="form-control", id=form.supplier_address.id) }}
+                </div>
+            </div>
+        </div>
+        <div class="container1" id="rei" style="display: none;">
+            <div class="form-row">
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.having_issue.id }}">Having Issue (Yes/No):</label>
+                    {{ form.having_issue(class="form-control", id=form.having_issue.id, onchange="toggleIssueFields()")
+                    }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.incident_id.id }}">Incident ID:</label>
+                    {{ form.incident_id(class="form-control issue-field", id=form.incident_id.id,disabled="true") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.remarks.id }}">Remarks:</label>
+                    {{ form.remarks(class="form-control issue-field", id=form.remarks.id,disabled="true") }}
+                </div>
+            </div>
+        </div>
+        <div class="container1" id="specificationsForm" style="display: none;"></div>
+
+
+        <!-- <button type="button" class="collapsible"><strong>Device specifications</strong></button>
+        <div class="container1">
+           
+            <div class="form-group">
+                <label for="{{ form.device_type.id }}">Device Type:</label>
+                {{ form.device_type(class="form-control", id=form.device_type.id, onchange="showDeviceSpecifications()")
+                }}
+            </div> -->
+            <div class="mt-4 container1">
+                <button type="submit" class="btn btn-success">Update Asset</button>
+            </div>
+   
+</div>
+
+<!-- <div id="popup-container">
+            <div id="popup-message" class="popup">
+                <span class="popup-text" id="popupText"></span>
+            </div>
+        </div> -->
+
+<script>
+    function editAsset(assetId) {
+        $.ajax({
+            type: 'POST',
+            url: '/set_asset_id',
+            data: { 'asset_id': assetId },
+            success: function (response) {
+                console.log("Done")
+                window.location.href = "/edit_asset";
+
+            },
+            error: function (error) {
+                // Handle the error if needed
+            }
+        });
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $('#editOptions').change(function () {
+            var editOptions = $(this).val();
+            if(editOptions=="Assign / Change Asset Status"){
+                document.getElementById("asd").style.display="block"
+                document.getElementById("id").style.display="none"
+                document.getElementById("wd").style.display="none"
+                document.getElementById("payd").style.display="none"
+                document.getElementById("rei").style.display="none"
+            }
+            else if(editOptions=="Edit Insurance / Warranty Details"){
+                document.getElementById("asd").style.display="none"
+                document.getElementById("id").style.display="block"
+                document.getElementById("wd").style.display="block"
+                document.getElementById("payd").style.display="none"
+                document.getElementById("rei").style.display="none"
+            }
+            else if(editOptions=="Edit Payment Details"){
+                document.getElementById("asd").style.display="none"
+                document.getElementById("id").style.display="none"
+                document.getElementById("wd").style.display="none"
+                document.getElementById("payd").style.display="block"
+                document.getElementById("rei").style.display="none"
+            }
+            else if(editOptions=="Report Issue"){
+                document.getElementById("asd").style.display="none"
+                document.getElementById("id").style.display="none"
+                document.getElementById("wd").style.display="none"
+                document.getElementById("payd").style.display="none"
+                document.getElementById("rei").style.display="block"
+            }
+            else{
+                document.getElementById("asd").style.display="none"
+                document.getElementById("id").style.display="none"
+                document.getElementById("wd").style.display="none"
+                document.getElementById("payd").style.display="none"
+                document.getElementById("rei").style.display="none"
+            }
+            
+
+
+        });
+    });
+</script>
+
+<script>
+    function toggleIssueFields() {
+        var havingissueSelect = document.getElementById("having_issue");
+        var incidentIdInput = document.getElementById("incident_id");
+        var remarksInput = document.getElementById("remarks");
+
+
+        if (havingissueSelect.value === "Yes") {
+            incidentIdInput.disabled = false;
+            remarksInput.disabled = false;
+
+        } else {
+            incidentIdInput.value = "";
+            remarksInput.disabled = "";
+            incidentIdInput.disabled = true;
+            remarksInput.disabled = true;
+
+        }
+    }
+
+
+
+    function uploadFiles() {
+        const filesInput = document.getElementById('invoiceFiles');
+        const fileList = filesInput.files;
+
+        // Display uploaded files
+        const downloadList = document.getElementById('downloadList');
+        for (let i = 0; i < fileList.length; i++) {
+            const file = fileList[i];
+            const blobUrl = URL.createObjectURL(file);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = blobUrl;
+            downloadLink.download = file.name;
+            downloadLink.textContent = file.name;
+            downloadLink.style.display = 'block';
+            downloadList.appendChild(downloadLink);
+        }
+
+        // Limit displayed download links to 3
+        while (downloadList.children.length > 3) {
+            downloadList.removeChild(downloadList.firstChild);
+        }
+    }
+</script>
+
+
+
+
+<script>
+    // JavaScript function to handle the delete confirmation
+    document.querySelectorAll('.delete-link').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default link behavior
+            if (confirm(link.getAttribute('data-confirm'))) {
+                window.location.href = link.getAttribute('href'); // Follow the link's href
+            }
+        });
+    });
+</script>
+<script>
+    function togglePaymentFields() {
+        var paymentDoneSelect = document.getElementById("{{ form.payment_done.id }}");
+        var paymentDateInput = document.getElementById("{{ form.payment_date.id }}");
+        var voucherNumberInput = document.getElementById("{{ form.voucher_number.id }}");
+        var amountPaidInput = document.getElementById("{{ form.amount_paid.id }}");
+
+        // Check if Payment Done is set to 'No'
+        if (paymentDoneSelect.value.toLowerCase() === "no") {
+            // Clear the field values and disable them
+            paymentDateInput.value = "";
+            voucherNumberInput.value = "";
+            amountPaidInput.value = "";
+
+            paymentDateInput.disabled = true;
+            voucherNumberInput.disabled = true;
+            amountPaidInput.disabled = true;
+        } else {
+            // Enable the fields
+            paymentDateInput.disabled = false;
+            voucherNumberInput.disabled = false;
+            amountPaidInput.disabled = false;
+        }
+    }
+</script>
+
+<script>
+    function toggleSystemHostName() {
+        var productCategoryField = document.getElementById("{{ form.product_category.id }}");
+        var systemHostNameField = document.getElementById("systemHostNameField");
+
+        if (productCategoryField.value === "Desktop" || productCategoryField.value === "Laptop" || productCategoryField.value === "Monitor") {
+            systemHostNameField.style.display = "block";
+        } else {
+            systemHostNameField.style.display = "none";
+        }
+    }
+</script>
+
+
+<script>
+    function toggleOtherInsurance() {
+        var insuranceCompanyField = document.getElementById("{{ form.insurance_company.id }}");
+        var otherInsuranceCompanyField = document.getElementById("otherInsuranceCompanyField");
+
+        if (insuranceCompanyField.value === "Others") {
+            otherInsuranceCompanyField.style.display = "block";
+        } else {
+            otherInsuranceCompanyField.style.display = "none";
+        }
+    }
+</script>
+
+
+<script>
+    function validateIPv4(inputElement) {
+        // Regular expression to match a valid IPv4 address
+        var ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+        var inputValue = inputElement.value;
+
+        if (ipv4Pattern.test(inputValue)) {
+            // Valid IPv4 address
+            inputElement.setCustomValidity('');
+        } else {
+            // Invalid IPv4 address
+            inputElement.setCustomValidity('Please enter a valid IPv4 address.');
+        }
+    }
+
+</script>
+<script>
+    function toggleInsuranceFields() {
+        var insuranceCoverageSelect = document.getElementById("insurance_coverage");
+        var insuranceCompanyInput = document.getElementById("insurance_company");
+        var policyNumberInput = document.getElementById("policy_number");
+        var startDateInput = document.getElementById("start_date");
+        var endDateInput = document.getElementById("end_date");
+        var insuredAmountInput = document.getElementById("insured_amount");
+        var OtherInsuranceInput = document.getElementById("other_insurance");
+
+        if (insuranceCoverageSelect.value === "Yes") {
+            insuranceCompanyInput.disabled = false;
+            policyNumberInput.disabled = false;
+            startDateInput.disabled = false;
+            endDateInput.disabled = false;
+            insuredAmountInput.disabled = false;
+            OtherInsuranceInput.disabled = false;
+        } else {
+            insuranceCompanyInput.value = "";
+            policyNumberInput.value = "";
+            startDateInput.value = "";
+            endDateInput.value = "";
+            insuredAmountInput.value = "";
+            OtherInsuranceInput.value = "";
+
+            insuranceCompanyInput.disabled = true;
+            policyNumberInput.disabled = true;
+            startDateInput.disabled = true;
+            endDateInput.disabled = true;
+            insuredAmountInput.disabled = true;
+            OtherInsuranceInput.disabled = true;
+        }
+    }
+</script>
+
+
+
+
+<script type="text/javascript">
+    // Define a function to fetch user details via AJAX
+    function fetchUserDetails(domainName) {
+        // Send an AJAX request to the server to get user details
+        $.ajax({
+            url: "{{ url_for('asset_blueprint.get_user_details') }}",
+            method: "POST",
+            data: { domain_name: domainName },
+            success: function (response) {
+                if (response.user_name) {
+                    // Update the user name, email, and contact fields with the fetched data
+                    $("#{{ form.user_name.id }}").val(response.user_name);
+                    $("#{{ form.user_email.id }}").val(response.user_email);
+                    $("#{{ form.contact.id }}").val(response.user_contact);
+                } else {
+                    // Handle the case where no user details were found
+                    console.error("No user details found for the provided domain name.");
+                }
+            },
+            error: function () {
+                console.error("Error fetching user details.");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        // Attach the fetchUserDetails function to the change event of the domain_name field
+        $("#{{ form.domain_name.id }}").change(function () {
+            var selectedDomainName = $(this).val();
+            fetchUserDetails(selectedDomainName);
+        });
+    });
+
+    // You can also call fetchUserDetails explicitly when needed
+    function someOtherFunction() {
+        var domainName = $("#{{ form.domain_name.id }}").val(); // Get the domain name from the field
+        fetchUserDetails(domainName); // Call fetchUserDetails
+    }
+</script>
+
+
+
+<script>
+    function showAssetDetails() {
+        console.log;
+        var statusForm = document.getElementById('statusForm');
+        var status = document.getElementById('{{ form.asset_status.id }}').value;
+        // Check if Asset Status is already selected, and show details if necessary
+
+        if (status === 'Assigned') {
+            statusForm.innerHTML = `
+            <div class="form-row">
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id, onchange="fetchUserDetails(this.value)") }}
+                </div>
+                
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_name.id }}">User Name:</label>
+                    {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.assigned_start_date.id }}">Assigned Date:<span style="color: red;">*</span></label>
+                    {{ form.assigned_start_date(class="form-control", id=form.assigned_start_date.id,required="required") }}
+                  
+                </div>
+            
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id,onchange="checkLocation()",required="required")}}
+                </div>
+
+                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
+                    <label for="{{ form.other_location.id }}">Other Location:</label>
+                    {{ form.other_location(class="form-control", id=form.other_location.id) }}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.user_email.id }}">Email ID:</label>
+                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4" style="display: none;">
+                    <label for="{{ form.contact.id }}">Contact:</label>
+                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id, required="required", onchange="checkCompany()" ) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id,required="required") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                    `;
+        }
+        else if (status === 'Retained') {
+            statusForm.innerHTML = `
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.retain_amount.id }}">Retain Amount:<span style="color: red;">*</span></label>
+                    {{ form.retain_amount(class="form-control", id=form.retain_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?",required="required") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.retain_date.id }}">Retain Date:<span style="color: red;">*</span></label>
+                    {{ form.retain_date(class="form-control", id=form.retain_date.id,required="required") }}
+            </div>
+        </div>
+        <div>
+            <div class="form-row">
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id,onchange="fetchUserDetails(this.value)",required="required") }}
+                </div>  
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_name.id }}">User Name:</label>
+                    {{ form.user_name(class="form-control", id=form.user_name.id, required="required") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id, onchange="checkLocation()", required="required") }}
+                </div>
+
+                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
+                    <label for="{{ form.other_location.id }}">Other Location:</label>
+                    {{ form.other_location(class="form-control", id=form.other_location.id) }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_email.id }}">Email ID:</label>
+                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.contact.id }}">Contact:</label>
+                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id,onchange="checkCompany()", required="required")}}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id,required="required") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    `;
+        }
+        else if (status === 'Transferred') {
+            statusForm.innerHTML = `
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transfer_date.id }}">Transfer Date:<span style="color: red;">*</span></label>
+                    {{ form.transfer_date(class="form-control", id=form.transfer_date.id,required="required") }}
+                  
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_from.id }}">Transferred From:<span style="color: red;">*</span></label>
+                    {{ form.transferred_from(class="form-control", id=form.transferred_from.id,required="required") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_to.id }}">Transferred To:<span style="color: red;">*</span></label>
+                    {{ form.transferred_to(class="form-control", id=form.transferred_to.id,required="required") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_amount.id }}">Transferred Amount:<span style="color: red;">*</span></label>
+                    {{ form.transferred_amount(class="form-control", id=form.transferred_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?",required="required") }}
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="form-row">
+    <div class="form-group col-md-4">
+        <label for="{{ form.user_name.id }}">Domain Name:</label>
+        {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)",required="required") }}
+    </div>
+    <div class="form-group col-md-4">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Asset_Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id,onchange="checkLocation()", required="required") }}
+                </div>
+
+                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
+                    <label for="{{ form.other_location.id }}">Other Location:</label>
+                    {{ form.other_location(class="form-control", id=form.other_location.id) }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.user_email.id }}">Email ID:</label>
+                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.contact.id }}">Contact:</label>
+                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id,onchange="checkCompany()", required="required") }}
+                </div>
+
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id,required="required") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    `;
+        } else if (status === 'Disposed') {
+            statusForm.innerHTML = `
+        <div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.disposed_date.id }}">Disposed Date:<span style="color: red;">*</span></label>
+                    {{ form.disposed_date(class="form-control", id=form.disposed_date.id,required="required") }}
+                  
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.disposed_amount.id }}">Disposed Amount:<span style="color: red;">*</span></label>
+                    {{ form.disposed_amount(class="form-control", id=form.disposed_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?",required="required") }}
+                </div>
+            </div>
+        </div>
+    `;
+        }
+        else if (status === 'In Stock') {
+            statusForm.innerHTML = `
+        
+            <div class="form-row">
+               
+                <label for="{{ form.in_stock_start_date.id }}">Instock Date:<span style="color: red;">*</span></label>
+                    {{ form.in_stock_start_date(class="form-control", id=form.in_stock_start_date.id, required="required") }}
+                  
+            </div>
+    `;
+        }
+        else if (status === 'Not Working') {
+            statusForm.innerHTML = `
+        
+            <div class="form-row">
+                
+                <label for="{{ form.not_working_start_date.id }}">Not Working Start Date:<span style="color: red;">*</span></label>
+                    {{ form.not_working_start_date(class="form-control", id=form.not_working_start_date.id,required="required") }}
+                
+            </div>
+    `;
+        }
+        else if (status === 'End Of Life') {
+            statusForm.innerHTML = `
+        
+            <div class="form-row">
+                <label for="{{ form.end_of_life_start_date.id }}">End Of Life Start Date:<span style="color: red;">*</span></label>
+                {{ form.end_of_life_start_date(class="form-control", id=form.end_of_life_start_date.id) }}
+            </div>
+    `;
+        }
+        console.log("Show Asset Details: assetStatus =", status);
+    }
+</script>
+
+<script>
+    // function to show selected Asset Status corresponding fields
+    // function toggleAssetDetails() {
+    //     var statusForm = document.getElementById('statusForm');
+    //     if (statusForm.style.display === 'none' || statusForm.style.display === '') {
+    //         statusForm.style.display = 'block';
+    //     } else {
+    //         statusForm.style.display = 'none';
+    //     }
+    //     console.log("Toggle Asset Details: statusForm.style.display =", statusForm.style.display);
+    // }
+
+
+    // Function to show Asset Status details when editing a page
+    function toggleAssetDetails() {
+        var statusForm = document.getElementById('statusForm');
+        if (statusForm.style.display === 'none' || statusForm.style.display === '') {
+            statusForm.style.display = 'block';
+        } else {
+            statusForm.style.display = 'none';
+        }
+        console.log("Toggle Asset Details: statusForm.style.display =", statusForm.style.display);
+    }
+    // Call the function to show Asset Status details when editing a page
+    showAssetDetails();
+    // Call the function to show Asset Status details when editing a page
+</script>
+
+<script>
+    function validateForm() {
+        // Perform other form validations as needed
+
+        const phoneNumberInput = document.getElementById('{{ form.supplier_contact.id }}');
+
+        if (!validatePhoneNumber(phoneNumberInput)) {
+            return false; // Prevent form submission
+        }
+
+        // If all validations pass, allow form submission
+        return true;
+    }
+
+</script>
+
+<script>
+
+    // Add an event listener to the asset status select input to trigger the change
+    function openUserDetails() {
+        const status = document.getElementById('asset_status').value;
+        const statusForm = document.getElementById('statusForm');
+
+        statusForm.innerHTML = ''; // Clear previous content
+
+        if (status === 'Assigned') {
+
+            statusForm.innerHTML = `
+        <div>
+            <div class="form-row">
+    <div class="form-group col-md-4">
+        <label for="{{ form.user_name.id }}">User Name:</label>
+        {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)",required="required") }}
+    </div>
+    <div class="form-group col-md-4">
+                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id,onchange="fetchUserDetails(this.value)",required="required") }}
+                </div>
+               
+                <div class="form-group col-md-4">
+                    <label for="{{ form.assigned_start_date.id }}">Assigned Date:<span style="color: red;">*</span></label>
+                    {{ form.assigned_start_date(class="form-control", id=form.assigned_start_date.id,required="required") }}
+                  
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id,  onchange="checkLocation()",required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div id="otherLocationContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_location.id }}">Other Location:</label>
+                        {{ form.other_location(class="form-control", id=form.other_location.id) }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+    <div class="form-group col-md-4">
+        <label for="{{ form.user_email.id }}">Email ID:</label>
+        {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+    </div>
+    <div class="form-group col-md-4">
+        <label for="{{ form.contact.id }}">Contact:</label>
+        {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+    </div>
+</div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id, onchange="checkCompany()",required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+                    `;
+        }
+        else if (status === 'Retained') {
+            statusForm.innerHTML = `
+        <div>
+            <div class="form-row">
+                
+                <div class="form-group col-md-4">
+                    <label for="{{ form.retain_amount.id }}">Retain Amount:<span style="color: red;">*</span></label>
+                    {{ form.retain_amount(class="form-control", id=form.retain_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?",required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.retain_date.id }}">Retain Date:<span style="color: red;">*</span></label>
+                    {{ form.retain_date(class="form-control", id=form.retain_date.id,required="required") }}
+            </div>
+        </div>
+        <div>
+            <div class="form-row">
+    <div class="form-group col-md-4">
+        <label for="{{ form.user_name.id }}">Domain Name:</label>
+        {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)",required="required") }}
+    </div>
+    <div class="form-group col-md-4">
+                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id,onchange="fetchUserDetails(this.value)",required="required") }}
+                </div> 
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id,  onchange="checkLocation()",required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div id="otherLocationContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_location.id }}">Other Location:</label>
+                        {{ form.other_location(class="form-control", id=form.other_location.id) }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+    <div class="form-group col-md-4">
+        <label for="{{ form.user_email.id }}">Email ID:</label>
+        {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+    </div>
+    <div class="form-group col-md-4">
+        <label for="{{ form.contact.id }}">Contact:</label>
+        {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+    </div>
+</div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id,  onchange="checkCompany()",required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    `;
+        }
+        else if (status === 'Transferred') {
+            statusForm.innerHTML = `
+        <div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transfer_date.id }}">Transfer Date:<span style="color: red;">*</span></label>
+                    {{ form.transfer_date(class="form-control", id=form.transfer_date.id,required="required") }}
+                  
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_from.id }}">Transferred From:<span style="color: red;">*</span></label>
+                    {{ form.transferred_from(class="form-control", id=form.transferred_from.id,required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_to.id }}">Transferred To:<span style="color: red;">*</span></label>
+                    {{ form.transferred_to(class="form-control", id=form.transferred_to.id,required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.transferred_amount.id }}">Transferred Amount:<span style="color: red;">*</span></label>
+                    {{ form.transferred_amount(class="form-control", id=form.transferred_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?",required="required") }}
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="form-row">
+    <div class="form-group col-md-4">
+        <label for="{{ form.user_name.id }}">Domain Name:</label>
+        {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)",required="required") }}
+    </div>
+    <div class="form-group col-md-4">
+                    <label for="{{ form.user_name.id }}">User Name:</label>
+                    {{ form.user_name(class="form-control", id=form.user_name.id, required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.location.id }}">Asset_Location:<span style="color: red;">*</span></label>
+                    {{ form.location(class="form-control", id=form.location.id,  onchange="checkLocation()",required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div id="otherLocationContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_location.id }}">Other Location:</label>
+                        {{ form.other_location(class="form-control", id=form.other_location.id) }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+    <div class="form-group col-md-4">
+        <label for="{{ form.user_email.id }}">Email ID:</label>
+        {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+    </div>
+    <div class="form-group col-md-4">
+        <label for="{{ form.contact.id }}">Contact:</label>
+        {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+    </div>
+</div>
+              
+                <div class="form-group col-md-4">
+                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                    {{ form.company(class="form-control", id=form.company.id, onchange="checkCompany()",required="required") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <div id="otherCompanyContainer" class="form-group" style="display: none;">
+                        <label for="{{ form.other_company.id }}">Other Company:</label>
+                        {{ form.other_company(class="form-control", id=form.other_company.id) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    `;
+        } else if (status === 'Disposed') {
+            statusForm.innerHTML = `
+        <div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.disposed_date.id }}">Disposed Date:<span style="color: red;">*</span></label>
+                    {{ form.disposed_date(class="form-control", id=form.disposed_date.id,required="required") }}
+                  
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.disposed_amount.id }}">Disposed Amount:<span style="color: red;">*</span></label>
+                    {{ form.disposed_amount(class="form-control", id=form.disposed_amount.id,type="text", pattern="[0-9]+([.,][0-9]+)?",required="required") }}
+                </div>
+            </div>
+        </div>
+    `;
+        }
+        else if (status === 'In Stock') {
+            statusForm.innerHTML = `
+        
+            <div class="form-row">
+                <label for="{{ form.in_stock_start_date.id }}">Instock Date:<span style="color: red;">*</span></label>
+                    {{ form.in_stock_start_date(class="form-control", id=form.in_stock_start_date.id,required="required") }}
+                  
+            </div>
+    `;
+        }
+        else if (status === 'Not Working') {
+            statusForm.innerHTML = `
+        
+            <div class="form-row">
+                <label for="{{ form.not_working_start_date.id }}">Not Working Start Date:<span style="color: red;">*</span></label>
+                    {{ form.not_working_start_date(class="form-control", id=form.not_working_start_date.id,required="required") }}
+                  
+            </div>
+    `;
+        }
+        else if (status === 'End Of Life') {
+            statusForm.innerHTML = `
+        
+            <div class="form-row">
+                <label for="{{ form.end_of_life_start_date.id }}">End Of Life Start Date:<span style="color: red;">*</span></label>
+                    {{ form.end_of_life_start_date(class="form-control", id=form.end_of_life_start_date.id) }}
+                  
+            </div>
+    `;
+        }
+    }
+</script>
+
+
+
+<!-- JavaScript to clear fields when the asset status dropdown is clicked -->
+<!-- JavaScript to clear fields when the asset status dropdown is clicked -->
+<script>
+    $(document).ready(function () {
+        $('#asset_status').click(function () {
+            clearFieldsForStatusChange();
+        });
+
+        function clearFieldsForStatusChange() {
+
+
+            var selectedStatus = $('#asset_status').val();
+
+            // Clear fields based on the selected status
+            if (selectedStatus === 'In Stock') {
+
+                $('#in_stock_start_date').val('');
+
+
+            } else if (selectedStatus === 'Assigned') {
+
+
+                $('#assigned_start_date').val('');
+                $('#user_name').val('');
+                $('#domain_name').val('');
+                $('#contact').val('');
+                $('#user_email').val('');
+                $('#company').val('');
+                $('#location').val('');
+
+            } else if (selectedStatus === 'Transferred') {
+                $('#transfer_date').val('');
+                $('#transferred_amount').val('');
+                $('#transferred_from').val('');
+                $('#transferred_to').val('');
+                $('#user_name').val('');
+                $('#domain_name').val('');
+                $('#contact').val('');
+                $('#user_email').val('');
+                $('#company').val('');
+                $('#location').val('');
+            } else if (selectedStatus === 'Retained') {
+                $('#retain_date').val('');
+                $('#retain_amount').val('');
+                $('#user_name').val('');
+                $('#domain_name').val('');
+                $('#contact').val('');
+                $('#user_email').val('');
+                $('#company').val('');
+                $('#location').val('');
+            } else if (selectedStatus === 'Not Working') {
+
+                $('#not_working_start_date').val('');
+            } else if (selectedStatus === 'Disposed') {
+
+                $('#disposed_date').val('');
+                $('#disposed_amount').val('');
+
+
+            }
+        }
+    });
+</script>
+
+<script>
+    window.onload = checkCompany;
+    window.onload = checkLocation;
+
+
+    function checkLocation() {
+        const locationDropdown = document.getElementById('location');
+        const otherLocationContainer = document.getElementById('otherLocationContainer');
+        const otherLocationInput = document.getElementById('other_location');
+
+        if (locationDropdown.value === 'Others') {
+            otherLocationContainer.style.display = 'block';
+            otherLocationInput.setAttribute('required', 'required');
+        } else {
+            otherLocationContainer.style.display = 'none';
+            otherLocationInput.removeAttribute('required');
+        }
+    }
+
+
+    function checkCompany() {
+        const CompanyDropdown = document.getElementById('company');
+        const otherCompanyContainer = document.getElementById('otherCompanyContainer');
+        const otherCompanyInput = document.getElementById('other_company');
+
+        if (CompanyDropdown.value === 'Others') {
+            otherCompanyContainer.style.display = 'block';
+            otherCompanyInput.setAttribute('required', 'required');
+        } else {
+            otherCompanyContainer.style.display = 'none';
+            otherCompanyInput.removeAttribute('required');
+        }
+    }
+
+</script>
+
+<script>
+    function showDeviceSpecifications() {
+        const product_category = document.getElementById('product_category').value;
+        const specificationsForm = document.getElementById('specificationsForm');
+
+        specificationsForm.innerHTML = ''; // Clear previous content
+
+        if (product_category === 'Laptop' || product_category === 'Desktop') {
+            specificationsForm.innerHTML = `
+                                    <h4>Product Specifications</h4>    
+        <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_os.id }}">Operating System:</label>
+                    {{ form.desk_lap_os(class="form-control", id=form.desk_lap_os.id, placeholder="Enter Operating System") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_hdd_type.id }}">HDD Type:</label>
+                    {{ form.desk_lap_hdd_type(class="form-control", id=form.desk_lap_hdd_type.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_hdd_size.id }}">HDD Size (GB):</label>
+                    {{ form.desk_lap_hdd_size(class="form-control", id=form.desk_lap_hdd_size.id) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_type.id }}">RAM Type:</label>
+                    {{ form.desk_lap_ram_type(class="form-control", id=form.desk_lap_ram_type.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_size.id }}">RAM Size:</label>
+                    {{ form.desk_lap_ram_size(class="form-control", id=form.desk_lap_ram_size.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_frequency.id }}">RAM Frequency (MHz):</label>
+                    {{ form.desk_lap_ram_frequency(class="form-control", id=form.desk_lap_ram_frequency.id) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_expandable.id }}">RAM Expandable Upto (GB):</label>
+                    {{ form.desk_lap_ram_expandable(class="form-control", id=form.desk_lap_ram_expandable.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_ram_slots.id }}">Number of RAM Slots:</label>
+                    {{ form.desk_lap_ram_slots(class="form-control", id=form.desk_lap_ram_slots.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_hdmi_port.id }}">HDMI Port (Yes/No):</label>
+                    {{ form.desk_lap_hdmi_port(class="form-control", id=form.desk_lap_hdmi_port.id) }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_display_size.id }}">Display Size (Inch):</label>
+                    {{ form.desk_lap_display_size(class="form-control", id=form.desk_lap_display_size.id, placeholder="Enter Display Size") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_graphics_card_size.id }}">Graphics Card Size (GB):</label>
+                    {{ form.desk_lap_graphics_card_size(class="form-control", id=form.desk_lap_graphics_card_size.id) }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.desk_lap_graphics_card_version.id }}">Graphics Card Version:</label>
+                    {{ form.desk_lap_graphics_card_version(class="form-control", id=form.desk_lap_graphics_card_version.id) }}
+                </div>
+        </div>
+
+                                        
+                                    `;
+
+        } else if (product_category === 'Printer') {
+            specificationsForm.innerHTML = `
+                                    
+                                    
+                                    <h4>Product Specifications</h4>       
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.printer_type.id }}">Printer Type:</label>
+                {{ form.printer_type(class="form-control", id=form.printer_type.id, placeholder="Enter Printer Type") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.printing_type.id }}">Printing Type:</label>
+                {{ form.printing_type(class="form-control", id=form.printing_type.id) }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.printer_connectivity.id }}">Connectivity:</label>
+                {{ form.printer_connectivity(class="form-control", id=form.printer_connectivity.id) }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.printer_toner.id }}">Printer Toner Name:</label>
+                {{ form.printer_toner(class="form-control", id=form.printer_toner.id, placeholder="Enter Printer Toner Name") }}
+            </div>
+        </div>
+
+                            
+                                    `;
+        } else if (product_category === 'HDD Specs') {
+            specificationsForm.innerHTML = `
+                                        
+                                    <h4>Product Specifications</h4>         
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.hdd_size.id }}">HDD Size (GB):</label>
+                    {{ form.hdd_size(class="form-control", id=form.hdd_size.id, placeholder="Enter HDD Size") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.hdd_type.id }}">HDD Type:</label>
+                    {{ form.hdd_type(class="form-control", id=form.hdd_type.id, placeholder="Enter HDD Type") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.hdd_connectivity.id }}">Connectivity:</label>
+                    {{ form.hdd_connectivity(class="form-control", id=form.hdd_connectivity.id) }}
+                </div>
+            </div>
+
+                                        
+                                    `;
+        } else if (product_category === 'Tablet') {
+            specificationsForm.innerHTML = `
+                                    <h4>Product Specifications</h4> 
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_os.id }}">Operating System:</label>
+                {{ form.tab_os(class="form-control", id=form.tab_os.id, placeholder="Enter Operating System") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_storage.id }}">Storage (ROM) GB:</label>
+                {{ form.tab_storage(class="form-control", id=form.tab_storage.id, placeholder="Enter Storage (ROM) GB") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_ram_size.id }}">RAM Size (GB):</label>
+                {{ form.tab_ram_size(class="form-control", id=form.tab_ram_size.id, placeholder="Enter RAM Size") }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_display_size.id }}">Display Size (Inch):</label>
+                {{ form.tab_display_size(class="form-control", id=form.tab_display_size.id, placeholder="Enter Display Size") }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_stylus.id }}">Stylus (Yes/No):</label>
+                {{ form.tab_stylus(class="form-control", id=form.tab_stylus.id) }}
+            </div>
+            <div class="form-group col-md-4">
+                <label for="{{ form.tab_connectivity.id }}">Connectivity:</label>
+                {{ form.tab_connectivity(class="form-control", id=form.tab_connectivity.id) }}
+            </div>
+        </div>
+
+                    
+                                        
+                                    `;
+        } else if (product_category === 'Monitor') {
+            specificationsForm.innerHTML = `
+                                        
+                                    
+                                    <h4>Product Specifications</h4>           
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="{{ form.monitor_display_size.id }}">Display Size (Inch):</label>
+                    {{ form.monitor_display_size(class="form-control", id=form.monitor_display_size.id, placeholder="Enter Display Size") }}
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="{{ form.monitor_screen_type.id }}"> Screen type</label>
+                    {{ form.monitor_screen_type(class="form-control", id=form.monitor_screen_type.id) }}
+                </div>
+               
+            </div>
+                                        
+                                    `;
+        } else if (product_category === 'UPS') {
+            specificationsForm.innerHTML = `
+                                        
+                            
+                                    <h4>Product Specifications</h4> 
+        <div class="form-row">
+            <div class="container mt-4">
+                <label for="{{ form.ups_capacity.id }}">UPS Capacity (Kva):</label>
+                {{ form.ups_capacity(class="form-control", id=form.ups_capacity.id, placeholder="Enter UPS Capacity (Kva)") }}
+            </div>
+            <div class="container mt-4">
+                <label for="{{ form.ups_amc.id }}">AMC (Yes/No):</label>
+                {{ form.ups_amc(class="form-control", id=form.ups_amc.id) }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="container mt-4">
+                <label for="{{ form.ups_start_date.id }}">Start Date:</label>
+                {{ form.ups_start_date(class="form-control", id=form.ups_start_date.id,format="%d/%m/%Y") }}
+               
+
+            </div>
+            <div class="container mt-4">
+                <label for="{{ form.ups_end_date.id }}">End Date:</label>
+                {{ form.ups_end_date(class="form-control", id=form.ups_end_date.id,format="%d/%m/%Y") }}
+            </div>
+        </div>
+                                    
+                                    `;
+
+        }
+
+    }
+
+
+
+    // working one upload files 
+
+    window.onload = showDeviceSpecifications;
+
+    // working one upload files 
+
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
+        });
+    }
+
+
+</script>
+
+
+
+</form>
+</div>
+
+
+<style>
+    .h6-format {
+        color: red;
+        font-weight: 100;
+        text-decoration: none;
+        /*underline;*/
+    }
+</style>
+<br>
+
+{% endblock %}

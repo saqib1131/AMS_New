@@ -1,0 +1,187 @@
+{% extends "base1.html" %}
+{% block bodyContent %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+<script>
+    function downloadReport() {
+           const element = document.querySelector('.container'); // Replace with your container selector
+   
+           html2canvas(element, {
+               scrollY: -window.scrollY,
+               windowWidth: document.documentElement.offsetWidth,
+               windowHeight: document.documentElement.offsetHeight,
+               logging: true,
+               useCORS: true
+           }).then(canvas => {
+               const imgData = canvas.toDataURL('image/png');
+               const pdf = new jsPDF();
+               const imgWidth = 210;
+               const imgHeight = (canvas.height * imgWidth) / canvas.width;
+   
+               pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+               pdf.save('report.pdf');
+           });
+       }
+   </script>
+<style>
+    .awesome-header {
+        font-size: 25px;
+        text-align: center;
+
+        color: green;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+
+        margin-bottom: 20px;
+        padding-right: 20px;
+    }
+
+    .form-row {
+
+        margin-bottom: 20px;
+        padding-right: 20px;
+    }
+
+
+</style>
+<div class="container-fluid">
+    <div class="card-body">
+        <h1 class="awesome-header">User Life Cycle</h1>
+        <br>
+        <div class="col-md-12 d-flex justify-content-center">
+            <form method="POST" class="row g-3" style="text-align: center;">
+
+            <div class="col-auto">
+                {{ form.domainName(class="form-control") }}
+            </div>
+            <div class="col-auto">
+                {{ form.submit(class="btn btn-success") }}
+            </div>
+        </form>
+
+        </div>
+        
+        <hr>
+          <div class="col-md-12" id="assetTrailDiv">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- <h2 class="awesome-header" style="text-align: left !important;">
+        Asset Number: {{ asset_number }}
+    </h2> -->
+    <br>
+<div class="row">
+    <div class="col-md-6">
+        <h1 class="awesome-header">Current Asset Status</h1>
+    <br>
+    <table class="table table-bordered" id="result-table">
+        <thead style="text-align: center; color: green; ">
+            <tr>
+                <th>Asset Number</th>
+                <th>Asset Name</th>
+                <th>Asset Status</th>
+                <th>Invoice Amount</th>
+                <th>Start Date</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in assetMap %}
+            <tr style="text-align: center;">
+               <td>{{item.asset_number}}</td>
+               <td>{{item.product_category}}</td>
+               <td>{{item.asset_status}}</td>
+               <td>{{item.invoice_amount}}</td>
+               <td>{{item.asset_add_date}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    
+    </table>
+</div>
+<div class="col-md-6">
+    <h1 class="awesome-header">Asset History</h1>
+<br>
+<table class="table table-bordered" id="result-table">
+    <thead style="text-align: center; color: green; ">
+        <tr>
+            <th>Asset Number</th>
+            <th>Asset Name</th>
+            <th>Asset Status</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in pAsset %}
+        <tr style="text-align: center;">
+           <td>{{item.Asset_ID}}</td>
+           <td>{{assetIDname[item.Asset_ID]}}</td>
+           <td>{{item.AssetStatus}}</td>
+           <td>{{item.Date}}</td>
+           <td>{{item.EndDate}}</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+</div>
+</div>
+    <br>
+    <!-- <button class="btn btn-success" id="downloadButton">Download Report</button> -->
+</div>
+
+
+        <script>
+                document.getElementById("downloadButton").addEventListener("click", () => {
+        const table = document.getElementById("result-table");
+        const rows = table.querySelectorAll("tr");
+        const csvData = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = [], cols = rows[i].querySelectorAll("td, th");
+            for (let j = 0; j < cols.length; j++) {
+                row.push(cols[j].innerText);
+            }
+            csvData.push(row.join(","));
+        }
+
+        const csvString = csvData.join("\n");
+        const blob = new Blob([csvString], { type: "text/csv" });
+        const link = document.createElement("a");
+        link.setAttribute("href", URL.createObjectURL(blob));
+        link.setAttribute("download", "asset-lifecycle-report.csv");
+        link.click();
+    });
+
+        </script>
+
+        
+        <style>
+            .h6-format {
+                color: red;
+                font-weight: 100;
+                text-decoration: none;
+                /*underline;*/
+            }
+        
+        </style>
+        <br>
+    </div>
+</div>
+
+
+
+
+
+  
+  
+{% endif %}
+{% endblock %}

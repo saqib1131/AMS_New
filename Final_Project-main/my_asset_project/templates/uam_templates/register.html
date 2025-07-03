@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}User Registration Page{% endblock %}
+{% block bodyContent %}
+<div class="container">
+    <div class=" row justify-content-center">
+        <div class="col-sm-6 mt-4">
+            <h2>Add User</h2>
+            <form action="/register" method="POST" onsubmit="return validateEmail(event)" >
+                <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                <label for="email">Email:</label>
+                <input class="form-control" id="email" placeholder="Enter email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                <label for="pwd">Password:</label>
+                <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password" required>
+                </div>
+                <div class="form-group">
+                <label for="Role">Role:</label>
+                <select class="form-control mr-1" id="inputRole" name="role" required="">
+                    <option value="" disabled="" selected="">Select Role</option>
+                    <option value="Super">Super User</option>
+                    <option value="Admin">Admin User</option>
+                    <option value="Normal">Normal User</option>
+                </select>
+                </div>
+                <button type="submit" onclick="validateEmail()" class="btn btn-dark">Add User</button>
+                <!-- <a href="/login" class="btn btn-primary">Login</a> -->
+                <br><br>
+                <p id="emailError" style="color: red;"></p> 
+                
+            </form>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                        <br>    
+                        <div class="alert alert-{{ category }}">
+                        {{ message }}
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                {% endwith %}
+        </div>
+    </div>
+  
+</div>
+<script>
+    function validateEmail(event) {
+    const emailInput = document.getElementById('email').value;
+    const emailError = document.getElementById('emailError');
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(emailInput)) {
+        emailError.textContent = 'Please enter a valid email address';
+        return false; // Prevent form submission
+    } 
+    else {
+        emailError.textContent = ''; // Clear any previous error message
+        return true; // Allow form submission
+    }
+}
+
+</script>
+{% endblock %}

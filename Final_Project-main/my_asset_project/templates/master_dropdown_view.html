@@ -1,0 +1,172 @@
+{% extends "base1.html" %}
+{% block bodyContent %}
+<style>
+    .awesome-header {
+        font-size: 25px;
+        text-align: center;
+
+        color: green;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+
+    .card {
+        margin: auto;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .btn-success {
+        padding: 8px 16px;
+    }
+
+    #delete_choice,
+    #new_choice,
+    #code,
+    #category {
+        width: 400px;
+        /* Adjust the width as needed */
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-right: 10px;
+        /* Adjust the margin as needed */
+    }
+</style>
+<div class="container">
+    <br>
+    <h1 class="awesome-header">Master Dropdown</h1>
+    <p style="color: darkgoldenrod; text-align: center;">Efficiently and Effortlessly Add Dropdowns by Completing the
+        Form
+        below</p>
+    <br>
+
+    <!-- Your FlaskForm goes here -->
+    <form method="post" action="{{ url_for('master_dropdown.master_dropdown_view') }}">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="flashes" style="list-style-type: none;">
+            {% for category, message in messages %}
+            <li class="alert alert-{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {{ form.hidden_tag() }}
+    
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                    <p>Select a Category to Add/Delete Choices</p>
+                    
+                        <label for="{{ form.category.id }}">Category:</label>
+                        {{ form.category(class="form-control", id=form.category.id, onchange="toggleCode()", value="Select a Category") }}
+                    
+                </div>
+            </div>
+        </div>
+        <br>
+    
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                    <h6>Add a New Choice:</h6>
+                    <p>Easily Add New Choice by using the option given below</p>
+    
+                    <input type="hidden" id="selected_category" name="selected_category" value="{{ selected_category }}">
+                    
+                    <div class="form-row">
+                        <div class="col">
+                            <label for="new_choice">New Choice:</label>
+                            {{ form.new_choice(class="form-control") }}
+                        </div>
+                        <div class="col">
+                            <label for="{{ form.code.id }}">Code:</label>
+                            {{ form.code(class="form-control", id=form.code.id) }}
+                        </div>
+                    </div>
+    
+                    <input type="submit" value="Add" class="btn btn-success mx-auto d-block">
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                    <p>Easily Delete the Choice by using the option given below</p>
+    
+                    <input type="hidden" id="selected_category" name="selected_category" value="{{ selected_category }}">
+                    <label for="delete_choice">Choice:</label>
+                    {{ form.delete_choice(class="form-control") }}
+                    <br>
+                    <input type="submit" value="Delete" class="btn btn-success">
+                </div>
+            </div>
+        </div>
+    
+        
+    </form>
+    
+    <script>
+        function updateDeleteChoices() {
+            // Get the selected category
+            var selectedCategory = document.getElementById('{{ form.category.id }}').value;
+    
+            // Fetch choices for the selected category using AJAX
+            fetch('/get_choices?category=' + selectedCategory)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the delete_choice dropdown with the fetched choices
+                    var deleteChoiceDropdown = document.getElementById('delete_choice');
+                    deleteChoiceDropdown.innerHTML = '';
+                    
+                    // Add new options to delete_choice dropdown
+                    data.choices.forEach(choice => {
+                        var option = document.createElement('option');
+                        option.value = choice;
+                        option.text = choice;
+                        deleteChoiceDropdown.appendChild(option);
+                    });
+                });
+        }
+    
+        // Attach the updateDeleteChoices function to the change event of the category dropdown
+        document.getElementById('{{ form.category.id }}').addEventListener('change', updateDeleteChoices);
+    
+        // Call the function on page load to populate delete_choice based on the initial selected category
+        updateDeleteChoices();
+    
+    
+    function toggleCode() {
+        var categoryField = document.getElementById('{{ form.category.id }}');
+        var codeLabel = document.querySelector('label[for="{{ form.code.id }}"]');
+        var codeField = document.getElementById('{{ form.code.id }}');
+
+        if (categoryField.value === "Product Category" || categoryField.value === "AIC Office") {
+            codeLabel.style.display = "block";
+            codeField.style.display = "block";
+        } else {
+            codeLabel.style.display = "none";
+            codeField.style.display = "none";
+        }
+    }
+
+    </script>
+    
+</script>
+
+{% endblock %}

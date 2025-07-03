@@ -61,18 +61,17 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
+      {% if session.get('name') %}
+      <ul class="navbar-nav mr-auto d-none">
         <li class="nav-item active">
           <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
         </li>
-        {% if session.get('role') == 'Super' or session.get('role')=='Admin' %}
         <li class="nav-item">
           <a class="nav-link" href="/add-user">Add User</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/master_dropdown">Master Dropdown</a>
         </li>
-        {% endif %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
@@ -93,17 +92,51 @@
           <a class="nav-link" href="/master_dropdown">Master</a>
         </li> -->
       </ul>
+      {% endif %}
+      {% if session.get('name') %}
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/add-user">Add User</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/master_dropdown">Master Dropdown</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            IT
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/search_assets">IT Assets</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <!-- <a class="dropdown-item" href="#">IT Assets</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#">Something else here</a> -->
+          </div>
+        </li>
+        <!-- <li class="nav-item active">
+          <a class="nav-link" href="/master_dropdown">Master</a>
+        </li> -->
+      </ul>
+      {% endif %}
       <ul class="navbar-nav ml-auto">
         {% if session.get('name') %}
             <li class="nav-item">
                 <a class="nav-link" href=""> <i class="bi bi-person-circle"></i> {{ session.get('name') }}</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="Logout">
                 <a class="nav-link" href="/logout">Logout</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/login">Login</a>
-            </li>
+
+            <!-- <li class="nav-item">
+                <a class="nav-link" id="Login" href="/login">Login</a>
+            </li> -->
         {% endif %}
     </ul>
     </div>
@@ -145,7 +178,7 @@
 
   <!-- Copyright -->
   <div class="text-center p-3" style="background-color: green; color:white">
-      © 2023 Copyright:
+      © 2025 Copyright:
       <a style="color: white;">AIC Of India</a>
     </div>
   <!-- Copyright -->

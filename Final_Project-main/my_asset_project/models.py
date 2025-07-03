@@ -14,22 +14,18 @@ class User(db.Model, UserMixin):
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     AIC_office = db.Column(db.String(64))
-    department = db.Column(db.String(64))
     domain_name = db.Column(db.String(64), unique=True, index=True)
     user_email = db.Column(db.String(64), unique=True, index=True)
-    password_hash = db.Column(db.String(128))
-    role = db.Column(db.String(40), default='Normal User')
+    password_hash = db.Column(db.String(600))
 
 
-    def __init__(self, AIC_office, department, user_email, domain_name, password, role):
+    def __init__(self, AIC_office, user_email, domain_name, password_hash):
  
         self.AIC_office = AIC_office
-        self.department = department
         self.user_email = user_email
         self.domain_name = domain_name
-        self.password_hash = generate_password_hash(password)
-        self.role=role
-
+        self.password_hash = generate_password_hash(password_hash)
+        
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 

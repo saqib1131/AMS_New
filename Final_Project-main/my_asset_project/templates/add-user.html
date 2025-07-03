@@ -39,6 +39,10 @@
                     {{ form.AIC_office(class="form-control", id=form.AIC_office.id) }}
                 </div>
                 <div class="form-group">
+                    <label for="{{ form.domain_name.id }}">Domain Name:<span style="color: red;">*</span></label>
+                    {{ form.domain_name(class="form-control", id=form.domain_name.id) }}
+                </div>
+                <div class="form-group">
                     <label for="{{ form.user_email.id }}">{{ form.user_email.label }}<span style="color: red;">*</span></label>
                     {{ form.user_email(class="form-control", id=form.user_email.id) }}
                 </div>

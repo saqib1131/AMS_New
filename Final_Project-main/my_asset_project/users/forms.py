@@ -18,7 +18,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log In')
 
 class RegistrationForm(FlaskForm):
-    AIC_office = StringField("AIC Office", validators=[DataRequired()])
+    AIC_office = SelectField("AIC Office", validators=[DataRequired()])
     domain_name = SelectField("domain_name", validators=[DataRequired()])
     user_email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), EqualTo('pass_confirm', message='Password must match!')])
@@ -28,8 +28,13 @@ class RegistrationForm(FlaskForm):
     def set_choices(self):
         # Fetch choices from the database for AIC_office
         self.domain_name.choices = [(str(user.domain_name), user.domain_name) for user in User_Details.query.all()]
-
         self.domain_name.choices.insert(0, ("", "Select a Domain Name"))
+    
+        self.AIC_office.choices = [(str(choice.choice), choice.choice) for choice in MasterDropdown.query.filter_by(category="AIC Office").all()]  
+        self.AIC_office.choices.insert(0, ("", "Select a AIC Office"))
+        # domain_list = [(str(user.domain_name), user.domain_name) for user in User_Details.query.all()]
+        # print("Fetched Domain",domain_list)
+        # self.domain_name.choices = [("", "Select a Domain Name")] + domain_list
 
     def populate_obj(self, obj):
         super().populate_obj(obj)

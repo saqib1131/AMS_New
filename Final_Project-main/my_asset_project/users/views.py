@@ -9,7 +9,7 @@ from functools import wraps
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import jsonify
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 # def superuser_required(f):
@@ -61,8 +61,8 @@ def login():
     #-----------
     if request.method=='POST' and form.validate():
         user = User.query.filter_by(user_email = form.user_email.data).first()
-        print(user.password_hash)
-        if user:
+        print(check_password_hash(user.password_hash, form.password.data))
+        if user and check_password_hash(user.password_hash, form.password.data):
             print("Yes")
             session['name'] = user.domain_name
             session['location']=user.AIC_office
@@ -109,48 +109,34 @@ def login():
 #             flash("Email ID or Password is Incorrect!", "info")
 #             return render_template('login.html', form=form,success_modal=success_modal)
 
-              
-              
-# #             return render_template('login.html', form=form, success_modal=success_modal)
 
 #     return render_template('login.html', form=form,success_modal=success_modal)
-
 
 @users.route("/add-user", methods=['GET', 'POST'])
 def add_user():
     form = RegistrationForm()
-    existing_user=""
+    existing_user = ""
     form.set_choices()
-    print(form, "form")
-    if session.get('role')=="Admin":
-        form.set_department_choices()
-    if form.validate_on_submit():
-        print (form.domain_name.data)
+    print("password", form.password.data)
+
+    if request.method == 'POST' and form.validate():
         existing_user = User.query.filter_by(user_email=form.user_email.data).first()
         if existing_user:
-                    flash('Email already exists. Please use a different email.', "info")
+            flash('Email already exists. Please use a different email.', "info")
         else:
-            if existing_user:
-                flash('Email already exists. Please use a different email.', "info")
-            else:
-                user = User(AIC_office = form.AIC_office.data,
-                            department = form.department.data,
-                            role = form.role.data,
-                            user_email = form.user_email.data,
-                            domain_name= form.domain_name.data,
-                            password= form.password.data,
-                            )
-            
-            #db.drop_all()
-            #db.create_all()
+            user = User(
+                AIC_office=form.AIC_office.data,
+                user_email=form.user_email.data,
+                domain_name=form.domain_name.data,
+                password_hash=form.password.data  # ✅ use consistent name
+            )
+
             db.session.add(user)
             db.session.commit()
             flash('User Added Successfully!', "info")
-            print("Reached the logging statement")  
             app.logger.info('New user added: %s by %s', form.user_email.data, session.get('name'))
 
-            #flash('Thanks for Registration!')
-    return render_template('add-user.html', form = form)
+    return render_template('add-user.html', form=form)
 
 
 #logout

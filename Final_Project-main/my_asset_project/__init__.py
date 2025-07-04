@@ -13,7 +13,7 @@ app.config['SECRET_KEY'] = 'mysecret'
 ###########DATABASE SETUP################
 #########################################
 # basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:mysql@localhost:3306/ams'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Saqib#12@localhost:3306/ams'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 

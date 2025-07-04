@@ -11,6 +11,12 @@ from logging.handlers import RotatingFileHandler
 from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
+ #Import the 'flash' function from Flask
+from flask import render_template, flash, redirect, url_for, request
+
+from functools import wraps
+from flask import session, redirect, url_for
+
 
 # def superuser_required(f):
 #     @wraps(f)
@@ -44,8 +50,6 @@ def register():
     
     return render_template('add-user.html', form = form)
 
- #Import the 'flash' function from Flask
-from flask import render_template, flash, redirect, url_for, request, flash
 
  # Your existing login route
 @users.route('/login', methods=['GET', 'POST'])
@@ -145,7 +149,7 @@ def logout():
     session.pop('name', None)
     session.pop('role', None)
     session.pop('dept', None)
-
+    session.clear()
     logout_user()
     return redirect(url_for("users.login"))
 
@@ -158,3 +162,10 @@ def get_user():
     print("users",)
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'name' not in session:
+            return redirect(url_for('users.login'))
+        return f(*args, **kwargs)
+    return decorated_function

@@ -529,7 +529,6 @@ def generate_asset_trail_data(form, status):
     return common_data
 
 from werkzeug.utils import secure_filename
-import os
 from flask import  send_from_directory
 
 #app.config['UPLOAD_FOLDER'] = 'C:\\Users\\mgtndl.appajisk\\Desktop\\invoices_upload'

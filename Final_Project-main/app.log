@@ -73,3 +73,4 @@ Traceback (most recent call last):
 werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'add_asset'. Did you mean 'add_asset.add_asset' instead?
 
 2025-07-04 14:53:20,785 - INFO - New Asset added with Number: AIC/CRO/PC/3 by None
+2025-07-04 12:13:45,830 - INFO - New user added: arshad@gmail.com by None

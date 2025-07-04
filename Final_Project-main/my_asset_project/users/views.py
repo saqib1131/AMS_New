@@ -12,7 +12,7 @@ from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
  #Import the 'flash' function from Flask
-from flask import render_template, flash, redirect, url_for, request, flash
+from flask import render_template, flash, redirect, url_for, request
 
 from functools import wraps
 from flask import session, redirect, url_for

@@ -229,9 +229,9 @@ class EditAssetForm(FlaskForm):
     editOptions = SelectField("Select Edit Option", choices=[
                                                       ("", "Select an Option"),
                                                       ("Assign / Change Asset Status", "Assign / Change Asset Status"), 
-                                                      ("Edit Insurance / Warranty Details", "Edit Insurance / Warranty Details"),
-                                                      ("Edit Payment Details", "Edit Payment Details"),
-                                                      ("Report Issue", "Report Issue")
+                                                    #   ("Edit Insurance / Warranty Details", "Edit Insurance / Warranty Details"),
+                                                    #   ("Edit Payment Details", "Edit Payment Details"),
+                                                    #   ("Report Issue", "Report Issue")
                                                       ])    
 
     location = SelectField("location", choices=[

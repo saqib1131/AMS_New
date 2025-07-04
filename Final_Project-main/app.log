@@ -1,3 +1,75 @@
 
 2025-07-03 15:30:59,639 - INFO - New user added: osndl.ruby@aicofindia.com by osndl.shikha
 2025-07-03 16:09:09,145 - INFO - New user added: osndl.arshad@aicofindia.com by osndl.ruby
+2025-07-04 11:26:41,816 - INFO - New user added: osndl.shikha@aicofindia.com by None
+2025-07-04 11:44:55,193 - INFO - New Asset added with Number: AIC/HO/PC/1 by osndl.shikha
+2025-07-04 12:05:02,274 - INFO - New Asset added with Number: AIC/HO/LPT/2 by osndl.shikha
+2025-07-04 12:07:03,200 - INFO - New Asset added with Number: AIC/HO/LPT/3 by osndl.shikha
+2025-07-04 14:23:56,263 - INFO - New Asset added with Number: AIC/CRO/PC/2 by None
+2025-07-04 14:29:39,418 - ERROR - Unexpected error: 'NoneType' object has no attribute 'isoformat'
+Traceback (most recent call last):
+  File "D:\repo\AMS_New\Final_Project-main\my_asset_project\assets\views.py", line 244, in add_asset
+    in_stock_start_date_str = form.in_stock_start_date.data.isoformat()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'isoformat'
+
+2025-07-04 14:30:33,218 - INFO - New Asset added with Number: AIC/DDN/PC/1 by None
+2025-07-04 14:36:15,834 - INFO - New Asset added with Number: AIC/DDN/PC/2 by None
+2025-07-04 14:36:15,857 - ERROR - Unexpected error: Could not build url for endpoint 'submit'. Did you mean 'static' instead?
+Traceback (most recent call last):
+  File "D:\repo\AMS_New\Final_Project-main\my_asset_project\assets\views.py", line 317, in add_asset
+    return redirect(url_for('submit'))
+                    ~~~~~~~^^^^^^^^^^
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ~~~~~~~~~~~~~~~~~~~^
+        endpoint,
+        ^^^^^^^^^
+    ...<4 lines>...
+        **values,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'submit'. Did you mean 'static' instead?
+
+2025-07-04 14:49:34,580 - INFO - New Asset added with Number: AIC/CH/LPT/1 by None
+2025-07-04 14:49:34,584 - ERROR - Unexpected error: Could not build url for endpoint 'add_asset'. Did you mean 'add_asset.add_asset' instead?
+Traceback (most recent call last):
+  File "D:\repo\AMS_New\Final_Project-main\my_asset_project\assets\views.py", line 319, in add_asset
+    return redirect(url_for('add_asset'))
+                    ~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ~~~~~~~~~~~~~~~~~~~^
+        endpoint,
+        ^^^^^^^^^
+    ...<4 lines>...
+        **values,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\osndl.saqib\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'add_asset'. Did you mean 'add_asset.add_asset' instead?
+
+2025-07-04 14:53:20,785 - INFO - New Asset added with Number: AIC/CRO/PC/3 by None

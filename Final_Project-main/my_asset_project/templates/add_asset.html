@@ -69,7 +69,7 @@
         <div class="container" style="text-align: center;">
             <div class="card-body">
                 <a href="/search_assets"><button type="button" class="btn btn-success">Search Assets</button></a>
-                <a href="/bulk_upload"><button type="button" class="btn btn-success">Bulk Upload Assets</button></a>
+                <!-- <a href="/bulk_upload"><button type="button" class="btn btn-success">Bulk Upload Assets</button></a> -->
                 <a href="/asset_life_cycle"><button type="button" class="btn btn-success">Asset Life Cycle</button></a>
 
             </div>
@@ -83,1093 +83,1131 @@
     <p style="color: darkgoldenrod; text-align: center;">Efficiently and Effortlessly Add Assets by Completing the Form
         below</p>
     <br>
-    <form method="POST" id="add_form">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endwith %}
-        {{ form.hidden_tag() }}
-        <button type="button" class="collapsible"><strong>Asset details</strong></button>
-        <div class="container1"><!-- upto asset details -->
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.AIC_office.id }}">AIC Office:<span style="color: red;">*</span></label>
-                    {{ form.AIC_office(class="form-control", id=form.AIC_office.id, onchange="getCode()") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.product_category.id }}">Product Category:<span
-                            style="color: red;">*</span></label>
-                    {{ form.product_category(class="form-control", id=form.product_category.id,
-                    onchange="getCode();showDeviceSpecifications()", required="required") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.asset_number.id }}">Asset number<span style="color: red;">*</span></label>
-                    {{ form.asset_number(class="form-control", id=form.asset_number.id, required="required",
-                    readonly="readonly") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.oem_serial_number.id }}">OEM Serial number<span
-                            style="color: red;">*</span></label>
-                    {{ form.oem_serial_number(class="form-control", id=form.oem_serial_number.id, required="required")
-                    }}
-                </div>
-                <p id="errorMessage" style="color: red; display: none;">This OEM Serial Number already exists.</p>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.manufacturer.id }}">Manufacturer<span style="color: red;">*</span></label>
-                    {{ form.manufacturer(class="form-control", id=form.manufacturer.id, onchange="toggleOtherBrand()",
-                    required="required") }}
-                </div>
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.product_name.id }}">Product name<span style="color: red;">*</span></label>
-                    {{ form.product_name(class="form-control", id=form.product_name.id, required="required") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.model_version.id }}">Product model/version<span
-                            style="color: red;">*</span></label>
-                    {{ form.model_version(class="form-control", id=form.model_version.id, required="required") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.asset_category.id }}">Asset Classification:</label>
-                    {{ form.asset_category(class="form-control", id=form.asset_category.id) }}
-                </div>
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.asset_status.id }}">Asset Status:<span style="color: red;">*</span></label>
-                    {{ form.asset_status(class="form-control", id=form.asset_status.id, onchange="openUserDetails()",
-                    required="required") }}
-                </div>
-
-                <div id="statusForm">
-                    <!-- Asset Status Form Will Appear Here -->
-                </div>
-
-                <div class="form-group col-md-4" id="systemHostNameField" >
-                    <label for="{{ form.system_host_name.id }}">System Host Name:</label>
-                    {{ form.system_host_name(type="text", class="form-control", id=form.system_host_name.id) }}
-                </div>
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.ip_address.id }}">IP address</label>
-
-                    {{ form.ip_address(type="text", class="form-control",
-                    id=form.ip_address.id,oninput="validateIPv4(this)") }}
-                </div>
-            </div>
-               <div id="specificationsForm">
-            <!-- <p>Device Specifications</title> -->
-        </div>
-        </div>
-        <button type="button" class="collapsible"><strong>Purchase Details</strong></button>
-        <div class="container1">
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.source_of_purchase.id }}">Source Of Purchase:</label><span
-                        style="color: red;">*</span>
-                    {{ form.source_of_purchase(class="form-control", id=form.source_of_purchase.id, required="required")
-                    }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.contract_id.id }}">Contract ID/Order number:</label>
-                    {{ form.contract_id(class="form-control", id=form.contract_id.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.invoice_id.id }}">Invoice number:</label><span style="color: red;">*</span>
-                    {{ form.invoice_id(class="form-control", id=form.invoice_id.id,required="required") }}
-                </div>
-
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.invoice_date.id }}">Invoice Date:<span style="color: red;">*</span></label>
-                    {{ form.invoice_date(class="form-control", id=form.invoice_date.id,format="%d/%m/%Y",
-                    required="required") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.invoice_amount.id }}">Invoice Amount:<span style="color: red;">*</span></label>
-                    {{ form.invoice_amount(class="form-control", id=form.invoice_amount.id,type="text",
-                    pattern="[0-9]+([.,][0-9]+)?" ,
-                    required="required",onchange="updateAmountPaid(this)") }}
-                </div>
-
-
-                <div class="form-group col-md-4">
-                    <div class="container">
-                        <div id="uploadContainer">
-                            <div class="form-group">
-                                <label for="invoiceFiles">Upload Invoices (PDF, JPG, PNG) - Maximum 3 files:</label>
-                                <input type="file" class="form-control-file" id="invoiceFiles" name="invoiceFiles[]"
-                                    multiple accept=".pdf, .jpg, .jpeg, .png" max="3">
-                            </div>
-                            <button type="button" onclick="uploadFiles()">Upload</button>
+    <form method="POST"  id="add_form">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
                         </div>
-                        <h5>Uploaded Files:</h5>
-                        <ul id="downloadList">
-                            {% for file in uploaded_files %}
-                            <li>
-                                <a href="{{ url_for('download_file', filename=file) }}" download>{{ file }}</a>
-                                <button onclick="deleteFile('{{ file }}')">Delete</button>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+                        {% endfor %}
+                        {% endwith %}
+                        {{ form.hidden_tag() }}
+                        <button type="button" class="collapsible"><strong>Asset details</strong></button>
+                        <div class="container1"><!-- upto asset details -->
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.AIC_office.id }}">AIC Office:<span style="color: red;">*</span></label>
+                                    {{ form.AIC_office(class="form-control", id=form.AIC_office.id, onchange="getCode()") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.product_category.id }}">Product Category:<span
+                                            style="color: red;">*</span></label>
+                                    {{ form.product_category(class="form-control", id=form.product_category.id,
+                                    onchange="getCode();showDeviceSpecifications()", required="required") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.asset_number.id }}">Asset number<span style="color: red;">*</span></label>
+                                    {{ form.asset_number(class="form-control", id=form.asset_number.id, required="required",
+                                    readonly="readonly") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.oem_serial_number.id }}">OEM Serial number<span
+                                            style="color: red;">*</span></label>
+                                    {{ form.oem_serial_number(class="form-control", id=form.oem_serial_number.id, required="required",onchange="getSerialNumber(this)")
+                                    }}
+                                    <p id="errorMessage" class="d-none">This OEM Serial Number already exists.</p>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.manufacturer.id }}">Manufacturer<span style="color: red;">*</span></label>
+                                    {{ form.manufacturer(class="form-control", id=form.manufacturer.id, onchange="toggleOtherBrand()",
+                                    required="required") }}
+                                </div>
 
-            </div>
-        </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.product_name.id }}">Product name<span style="color: red;">*</span></label>
+                                    {{ form.product_name(class="form-control" + (' is-invalid' if form.product_name.errors else ''), maxlength="10",  id=form.product_name.id, required="required")}}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.model_version.id }}">Product model/version<span
+                                            style="color: red;">*</span></label>
+                                    {{ form.model_version(class="form-control", id=form.model_version.id, required="required") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.asset_category.id }}">Asset Classification:</label>
+                                    {{ form.asset_category(class="form-control", id=form.asset_category.id) }}
+                                </div>
 
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.asset_status.id }}">Asset Status:<span style="color: red;">*</span></label>
+                                    {{ form.asset_status(class="form-control", id=form.asset_status.id, onchange="openUserDetails()",
+                                    required="required") }}
+                                </div>
 
-        <button type="button" class="collapsible"><strong>Insurance Details</strong></button>
-        <div class="container1">
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.insurance_coverage.id }}">Insurance Coverage:</label>
-                    {{ form.insurance_coverage(class="form-control", id=form.insurance_coverage.id,
-                    onchange="toggleInsuranceFields()") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.insurance_company.id }}">Insurance Company:</label>
-                    {{ form.insurance_company(class="form-control insurance-field", id=form.insurance_company.id,
-                    onchange="toggleOtherInsurance()",disabled="true" ) }}
-                </div>
-                <div class="form-group col-md-4" id="otherInsuranceCompanyField" style="display: none;">
-                    <label for="{{ form.other_insurance.id }}"> Other Insurance Company:</label>
-                    {{ form.other_insurance(class="form-control insurance-field", id=form.other_insurance.id) }}
-                </div>
+                                <div id="statusForm">
+                                    <!-- Asset Status Form Will Appear Here -->
+                                </div>
 
-                <div class="form-group col-md-4">
-                    <label for="{{ form.policy_number.id }}">Policy Number:</label>
-                    {{ form.policy_number(type="text", class="form-control insurance-field",
-                    id=form.policy_number.id,disabled="true")
-                    }}
-                </div>
-            </div>
+                                <div class="form-group col-md-4" id="systemHostNameField" >
+                                    <label for="{{ form.system_host_name.id }}">System Host Name:</label>
+                                    {{ form.system_host_name(type="text", class="form-control", id=form.system_host_name.id) }}
+                                </div>
 
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.start_date.id }}">Start Date:</label>
-                    {{ form.start_date(class="form-control insurance-field",
-                    id=form.start_date.id,format="%d/%m/%Y",disabled="true") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.end_date.id }}">End Date:</label>
-                    {{ form.end_date(class="form-control insurance-field",
-                    id=form.end_date.id,format="%d/%m/%Y",disabled="true") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.insured_amount.id }}">Insured Amount(in INR):</label>
-                    {{ form.insured_amount(class="form-control insurance-field", id=form.insured_amount.id,type="text",
-                    pattern="[0-9]+([.,][0-9]+)?",disabled="true") }}
-                </div>
-            </div>
-        </div>
-        <button type="button" class="collapsible"><strong>Warranty Details</strong> </button>
-        <div class="container1">
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.oem_asset_warranty.id }}">OEM asset Warranty(months)<span
-                            style="color: red;">*</span></label>
-                    {{ form.oem_asset_warranty(class="form-control", id=form.oem_asset_warranty.id, required="required")
-                    }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.oem_warranty_expiry_date.id }}">OEM Warranty Expiry date<span
-                            style="color: red;">*</span></label>
-                    {{ form.oem_warranty_expiry_date(class="form-control",
-                    id=form.oem_warranty_expiry_date.id,format="%d/%m/%Y",required="required") }}
-                </div>
-            </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.ip_address.id }}">IP address</label>
 
-        </div>
-        <div id="popupMessage" class="popup">
-            <span class="popup-text" id="popupText"></span>
-        </div>
+                                    {{ form.ip_address(type="text", class="form-control",
+                                    id=form.ip_address.id,oninput="validateIPv4(this)") }}
+                                </div>
+                            </div>
+                            <div id="specificationsForm">
+                            <!-- <p>Device Specifications</title> -->
+                        </div>
+                        </div>
+                        <button type="button" class="collapsible"><strong>Purchase Details</strong></button>
+                        <div class="container1">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.source_of_purchase.id }}">Source Of Purchase:</label><span
+                                        style="color: red;">*</span>
+                                    {{ form.source_of_purchase(class="form-control", id=form.source_of_purchase.id, required="required")
+                                    }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.contract_id.id }}">Contract ID/Order number:</label>
+                                    {{ form.contract_id(class="form-control", id=form.contract_id.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.invoice_id.id }}">Invoice number:</label><span style="color: red;">*</span>
+                                    {{ form.invoice_id(class="form-control", id=form.invoice_id.id,required="required") }}
+                                </div>
 
-
-
-        <button type="button" class="collapsible"><strong>Payment details</strong></button>
-        <div class="container1">
-            <div class="form-row">
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.payment_done.id }}">Payment Done (Yes/No):</label>
-                    {{ form.payment_done(class="form-control", id=form.payment_done.id,
-                    onchange="togglePaymentFields()") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.payment_date.id }}">Payment Date:</label>
-                    {{ form.payment_date(class="form-control", id=form.payment_date.id,
-                    format="%d/%m/%Y",required="required",disabled="true")
-                    }}
-
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.voucher_number.id }}">FMS Invoice Number:</label>
-                    {{ form.voucher_number(class="form-control payment-field", id=form.voucher_number.id,disabled="true"
-                    ) }}
-                </div>
-
-            </div>
-            <div class="form-row">
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.amount_paid.id }}">Amount Paid</label>
-                    {{ form.amount_paid(class="form-control", id=form.amount_paid.id,type="text",
-                    pattern="[0-9]+([.,][0-9]+)?",disabled="true") }}
-                </div>
-            </div>
-        </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.invoice_date.id }}">Invoice Date:<span style="color: red;">*</span></label>
+                                    {{ form.invoice_date(class="form-control", id=form.invoice_date.id,format="%d/%m/%Y",
+                                    required="required") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.invoice_amount.id }}">Invoice Amount:<span style="color: red;">*</span></label>
+                                    {{ form.invoice_amount(class="form-control", id=form.invoice_amount.id,type="text",
+                                    pattern="[0-9]+([.,][0-9]+)?" ,
+                                    required="required",onchange="updateAmountPaid(this)") }}
+                                </div>
 
 
-        <button type="button" class="collapsible"><strong>Supplier Details</strong></button>
-        <div class="container1">
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.supplier_name.id }}">Supplier Name:<span style="color: red;">*</span></label>
-                    {{ form.supplier_name(class="form-control", id=form.supplier_name.id, required="required") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.supplier_contact.id }}">Supplier Contact:<span
-                            style="color: red;">*</span></label>
-                    {{ form.supplier_contact(class="form-control", id=form.supplier_contact.id,
-                    required="required",type="text", pattern="[0-9]{10}",title="Please enter a 10-digit number") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.supplier_email.id }}">Supplier Email:</label>
-                    {{ form.supplier_email(class="form-control", id=form.supplier_email.id,type="email",title="Please
-                    enter a valid email address") }}
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.supplier_location.id }}">Supplier Location :</label>
-                    {{ form.supplier_location(class="form-control", id=form.supplier_location.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.supplier_address.id }}">Supplier Address:</label>
-                    {{ form.supplier_address(class="form-control", id=form.supplier_address.id) }}
-                </div>
-            </div>
-        </div>
+                                <div class="form-group col-md-4">
+                                    <div class="container">
+                                        <div id="uploadContainer">
+                                            <div class="form-group">
+                                                <label for="invoiceFiles">Upload Invoices (PDF, JPG, PNG) - Maximum 3 files:</label>
+                                                <input type="file" class="form-control-file" id="invoiceFiles" name="invoiceFiles[]"
+                                                    multiple accept=".pdf, .jpg, .jpeg, .png" max="3">
+                                            </div>
+                                            <button type="button" onclick="uploadFiles()">Upload</button>
+                                        </div>
+                                        <h5>Uploaded Files:</h5>
+                                        <ul id="downloadList">
+                                            {% for file in uploaded_files %}
+                                            <li>
+                                                <a href="{{ url_for('download_file', filename=file) }}" download>{{ file }}</a>
+                                                <button onclick="deleteFile('{{ file }}')">Delete</button>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
 
-        <button type="button" class="collapsible"><strong>Report Issue</strong></button>
-        <div class="container1">
-            <div class="form-row">
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.having_issue.id }}">Having Issue (Yes/No):</label>
-                    {{ form.having_issue(class="form-control", id=form.having_issue.id, onchange="toggleIssueFields()")
-                    }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.incident_id.id }}">Incident ID:</label>
-                    {{ form.incident_id(class="form-control", id=form.incident_id.id,disabled="true") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.remarks.id }}">Remarks:</label>
-                    {{ form.remarks(class="form-control", id=form.remarks.id,disabled="true") }}
-                </div>
-            </div>
-        </div>
+                            </div>
+                        </div>
 
 
+                        <button type="button" class="collapsible"><strong>Insurance Details</strong></button>
+                        <div class="container1">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.insurance_coverage.id }}">Insurance Coverage:</label>
+                                    {{ form.insurance_coverage(class="form-control", id=form.insurance_coverage.id,
+                                    onchange="toggleInsuranceFields()") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.insurance_company.id }}">Insurance Company:</label>
+                                    {{ form.insurance_company(class="form-control insurance-field", id=form.insurance_company.id,
+                                    onchange="toggleOtherInsurance()",disabled="true" ) }}
+                                </div>
+                                <div class="form-group col-md-4" id="otherInsuranceCompanyField" style="display: none;">
+                                    <label for="{{ form.other_insurance.id }}"> Other Insurance Company:</label>
+                                    {{ form.other_insurance(class="form-control insurance-field", id=form.other_insurance.id) }}
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.policy_number.id }}">Policy Number:</label>
+                                    {{ form.policy_number(type="text", class="form-control insurance-field",
+                                    id=form.policy_number.id,disabled="true")
+                                    }}
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.start_date.id }}">Start Date:</label>
+                                    {{ form.start_date(class="form-control insurance-field",
+                                    id=form.start_date.id,format="%d/%m/%Y",disabled="true") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.end_date.id }}">End Date:</label>
+                                    {{ form.end_date(class="form-control insurance-field",
+                                    id=form.end_date.id,format="%d/%m/%Y",disabled="true") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.insured_amount.id }}">Insured Amount(in INR):</label>
+                                    {{ form.insured_amount(class="form-control insurance-field", id=form.insured_amount.id,type="text",
+                                    pattern="[0-9]+([.,][0-9]+)?",disabled="true") }}
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="collapsible"><strong>Warranty Details</strong> </button>
+                        <div class="container1">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.oem_asset_warranty.id }}">OEM asset Warranty(months)<span
+                                            style="color: red;">*</span></label>
+                                    {{ form.oem_asset_warranty(class="form-control", id=form.oem_asset_warranty.id, required="required")
+                                    }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.oem_warranty_expiry_date.id }}">OEM Warranty Expiry date<span
+                                            style="color: red;">*</span></label>
+                                    {{ form.oem_warranty_expiry_date(class="form-control",
+                                    id=form.oem_warranty_expiry_date.id,format="%d/%m/%Y",required="required") }}
+                                </div>
+                            </div>
+
+                        </div>
+                        <div id="popupMessage" class="popup">
+                            <span class="popup-text" id="popupText"></span>
+                        </div>
 
 
-     
-</div>
+
+                        <button type="button" class="collapsible"><strong>Payment details</strong></button>
+                        <div class="container1">
+                            <div class="form-row">
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.payment_done.id }}">Payment Done (Yes/No):</label>
+                                    {{ form.payment_done(class="form-control", id=form.payment_done.id,
+                                    onchange="togglePaymentFields()") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.payment_date.id }}">Payment Date:</label>
+                                    {{ form.payment_date(class="form-control", id=form.payment_date.id,
+                                    format="%d/%m/%Y",required="required",disabled="true")
+                                    }}
+
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.voucher_number.id }}">FMS Invoice Number:</label>
+                                    {{ form.voucher_number(class="form-control payment-field", id=form.voucher_number.id,disabled="true"
+                                    ) }}
+                                </div>
+
+                            </div>
+                            <div class="form-row">
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.amount_paid.id }}">Amount Paid</label>
+                                    {{ form.amount_paid(class="form-control", id=form.amount_paid.id,type="text",
+                                    pattern="[0-9]+([.,][0-9]+)?",disabled="true") }}
+                                </div>
+                            </div>
+                        </div>
 
 
-<div class="text-center mt-4">
-    <button type="submit" class="btn btn-primary" id="submit-button">Add Asset</button>
-    <br>
-</div>
+                        <button type="button" class="collapsible"><strong>Supplier Details</strong></button>
+                        <div class="container1">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.supplier_name.id }}">Supplier Name:<span style="color: red;">*</span></label>
+                                    {{ form.supplier_name(class="form-control", id=form.supplier_name.id, required="required") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.supplier_contact.id }}">Supplier Contact:<span
+                                            style="color: red;">*</span></label>
+                                    {{ form.supplier_contact(class="form-control", id=form.supplier_contact.id,
+                                    required="required",type="text", pattern="[0-9]{10}",title="Please enter a 10-digit number") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.supplier_email.id }}">Supplier Email:</label>
+                                    {{ form.supplier_email(class="form-control", id=form.supplier_email.id,type="email",title="Please
+                                    enter a valid email address") }}
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.supplier_location.id }}">Supplier Location :</label>
+                                    {{ form.supplier_location(class="form-control", id=form.supplier_location.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.supplier_address.id }}">Supplier Address:</label>
+                                    {{ form.supplier_address(class="form-control", id=form.supplier_address.id) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="collapsible"><strong>Report Issue</strong></button>
+                        <div class="container1">
+                            <div class="form-row">
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.having_issue.id }}">Having Issue (Yes/No):</label>
+                                    {{ form.having_issue(class="form-control", id=form.having_issue.id, onchange="toggleIssueFields()")
+                                    }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.incident_id.id }}">Incident ID:</label>
+                                    {{ form.incident_id(class="form-control", id=form.incident_id.id,disabled="true") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.remarks.id }}">Remarks:</label>
+                                    {{ form.remarks(class="form-control", id=form.remarks.id,disabled="true") }}
+                                </div>
+                            </div>
+                        </div>
 
 
-<br>
-<script>
-    function toggleSystemHostName() {
-        let check_product_category = document.getElementById("product_category").value
-    console.log("dsdsdsd",check_product_category === "Desktop" || check_product_category === "Laptop");
-    
-        // let productCategoryField = document.getElementById("{{ form.product_category.id }}");
-        let systemHostNameField = document.getElementById("systemHostNameField");
 
-        if (check_product_category === "Desktop" || check_product_category === "Laptop") {
-
-
-            systemHostNameField.classList.remove("d-none");
-            systemHostNameField.classList.add("d-block");
-        } else {
-            systemHostNameField.classList.remove("d-block");
-
-            systemHostNameField.classList.add("d-none");
-        }
-    }
-
-        function showDeviceSpecifications() {
-        // let check_product_category = document.getElementById("product_category").value
-
-
-        const product_category = document.getElementById("product_category").value
-        let specificationsForm = document.getElementById('specificationsForm');
-        // console.log(`Category ${productCategory}: ${productCategory}`);
-        console.log('hdsjkjdjhdsdjsd',product_category)
-
-        specificationsForm.innerHTML = ''; // Clear previous content
-
-        if (product_category === 'Laptop' || product_category === 'Desktop') {
-            specificationsForm.innerHTML = `
-                                    <h4 style="background-color: green;
-    color: white;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;">Product Specifications</h4>                               
-          <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_os.id }}">Operating System:</label>
-                    {{ form.desk_lap_os(class="form-control", id=form.desk_lap_os.id, placeholder="Enter Operating System") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_hdd_type.id }}">HDD Type:</label>
-                    {{ form.desk_lap_hdd_type(class="form-control", id=form.desk_lap_hdd_type.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_hdd_size.id }}">HDD Size (GB):</label>
-                    {{ form.desk_lap_hdd_size(class="form-control", id=form.desk_lap_hdd_size.id) }}
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_ram_type.id }}">RAM Type:</label>
-                    {{ form.desk_lap_ram_type(class="form-control", id=form.desk_lap_ram_type.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_ram_size.id }}">RAM Size:</label>
-                    {{ form.desk_lap_ram_size(class="form-control", id=form.desk_lap_ram_size.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_ram_frequency.id }}">RAM Frequency (MHz):</label>
-                    {{ form.desk_lap_ram_frequency(class="form-control", id=form.desk_lap_ram_frequency.id) }}
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_ram_expandable.id }}">RAM Expandable Upto (GB):</label>
-                    {{ form.desk_lap_ram_expandable(class="form-control", id=form.desk_lap_ram_expandable.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_ram_slots.id }}">Number of RAM Slots:</label>
-                    {{ form.desk_lap_ram_slots(class="form-control", id=form.desk_lap_ram_slots.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_hdmi_port.id }}">HDMI Port (Yes/No):</label>
-                    {{ form.desk_lap_hdmi_port(class="form-control", id=form.desk_lap_hdmi_port.id) }}
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_display_size.id }}">Display Size (Inch):</label>
-                    {{ form.desk_lap_display_size(class="form-control", id=form.desk_lap_display_size.id, placeholder="Enter Display Size") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_graphics_card_size.id }}">Graphics Card Size (GB):</label>
-                    {{ form.desk_lap_graphics_card_size(class="form-control", id=form.desk_lap_graphics_card_size.id) }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.desk_lap_graphics_card_version.id }}">Graphics Card Version:</label>
-                    {{ form.desk_lap_graphics_card_version(class="form-control", id=form.desk_lap_graphics_card_version.id) }}
-                </div>
-            </div>
-
-                                        
-                                    `;
-
-        } else if (product_category === 'Printer') {
-            specificationsForm.innerHTML = `
-                                    
-                                     <h4 style="background-color: green;
-    color: white;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;">Product Specifications</h4>    
-                                        
-         <div class="form-row">
-            <div class="form-group col-md-4">
-                <label for="{{ form.printer_type.id }}">Printer Type:</label>
-                {{ form.printer_type(class="form-control", id=form.printer_type.id, placeholder="Enter Printer Type") }}
-            </div>
-            <div class="form-group col-md-4">
-                <label for="{{ form.printing_type.id }}">Printing Type:</label>
-                {{ form.printing_type(class="form-control", id=form.printing_type.id) }}
-            </div>
-            <div class="form-group col-md-4">
-                <label for="{{ form.printer_connectivity.id }}">Connectivity:</label>
-                {{ form.printer_connectivity(class="form-control", id=form.printer_connectivity.id) }}
-            </div>
-            </div>
-            <div class="form-row">
-            <div class="form-group col-md-4">
-                <label for="{{ form.printer_toner.id }}">Printer Toner Name:</label>
-                {{ form.printer_toner(class="form-control", id=form.printer_toner.id, placeholder="Enter Printer Toner Name") }}
-            </div>
-         </div>
-
-                            
-                                    `;
-        } else if (product_category === 'HDD Specs') {
-            specificationsForm.innerHTML = `
-                                    <h4 style="background-color: green;
-    color: white;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;">Product Specifications</h4>       
-                                    
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.hdd_size.id }}">HDD Size (GB):</label>
-                    {{ form.hdd_size(class="form-control", id=form.hdd_size.id, placeholder="Enter HDD Size") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.hdd_type.id }}">HDD Type:</label>
-                    {{ form.hdd_type(class="form-control", id=form.hdd_type.id, placeholder="Enter HDD Type") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.hdd_connectivity.id }}">Connectivity:</label>
-                    {{ form.hdd_connectivity(class="form-control", id=form.hdd_connectivity.id) }}
-                </div>
-             </div>
-
-                                        
-                                    `;
-        } else if (product_category === 'Tablet') {
-            specificationsForm.innerHTML = `
-                                     <h4 style="background-color: green;
-    color: white;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;">Product Specifications</h4> 
-             <div class="form-row">
-            <div class="form-group col-md-4">
-                <label for="{{ form.tab_os.id }}">Operating System:</label>
-                {{ form.tab_os(class="form-control", id=form.tab_os.id, placeholder="Enter Operating System") }}
-            </div>
-            <div class="form-group col-md-4">
-                <label for="{{ form.tab_storage.id }}">Storage (ROM) GB:</label>
-                {{ form.tab_storage(class="form-control", id=form.tab_storage.id, placeholder="Enter Storage (ROM) GB") }}
-            </div>
-            <div class="form-group col-md-4">
-                <label for="{{ form.tab_ram_size.id }}">RAM Size (GB):</label>
-                {{ form.tab_ram_size(class="form-control", id=form.tab_ram_size.id, placeholder="Enter RAM Size") }}
-            </div>
-            </div>
-            <div class="form-row">
-            <div class="form-group col-md-4">
-                <label for="{{ form.tab_display_size.id }}">Display Size (Inch):</label>
-                {{ form.tab_display_size(class="form-control", id=form.tab_display_size.id, placeholder="Enter Display Size") }}
-            </div>
-            <div class="form-group col-md-4">
-                <label for="{{ form.tab_stylus.id }}">Stylus (Yes/No):</label>
-                {{ form.tab_stylus(class="form-control", id=form.tab_stylus.id) }}
-            </div>
-            <div class="form-group col-md-4">
-                <label for="{{ form.tab_connectivity.id }}">Connectivity:</label>
-                {{ form.tab_connectivity(class="form-control", id=form.tab_connectivity.id) }}
-            </div>
-            </div>
 
                     
-                                        
-                                    `;
-        } else if (product_category === 'Monitor') {
-            specificationsForm.innerHTML = `
-                                        
-                                    
-                                    <h4 style="background-color: green;
-    color: white;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;">Product Specifications</h4>  
-                                        
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label for="{{ form.monitor_display_size.id }}">Display Size (Inch):</label>
-                    {{ form.monitor_display_size(class="form-control", id=form.monitor_display_size.id, placeholder="Enter Display Size") }}
-                </div>
-                <div class="form-group col-md-4">
-                    <label for="{{ form.monitor_screen_type.id }}"> Screen type</label>
-                    {{ form.monitor_screen_type(class="form-control", id=form.monitor_screen_type.id) }}
-                </div>
-               
-            </div>
-                                        
-                                    `;
-        } else if (product_category === 'UPS') {
-            specificationsForm.innerHTML = `
-                                        
-                            
-                                     <h4 style="background-color: green;
-    color: white;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;">Product Specifications</h4> 
-         <div class="form-row">
-            <div class="container mt-4">
-                <label for="{{ form.ups_capacity.id }}">UPS Capacity (Kva):</label>
-                {{ form.ups_capacity(class="form-control", id=form.ups_capacity.id, placeholder="Enter UPS Capacity (Kva)") }}
-            </div>
-            <div class="container mt-4">
-                <label for="{{ form.ups_amc.id }}">AMC (Yes/No):</label>
-                {{ form.ups_amc(class="form-control", id=form.ups_amc.id) }}
-            </div>
-            </div>
-            <div class="form-row">
-                <div class="container mt-4">
-                <label for="{{ form.ups_start_date.id }}">Start Date:</label>
-                {{ form.ups_start_date(class="form-control", id=form.ups_start_date.id,format="%d/%m/%Y") }}
-               
-
-            </div>
-            <div class="container mt-4">
-                <label for="{{ form.ups_end_date.id }}">End Date:</label>
-                {{ form.ups_end_date(class="form-control", id=form.ups_end_date.id,format="%d/%m/%Y" )}}
-            </div>
-         </div>
-                                    
-                                    `;
-
-        }
-
-    }
-    
-
-    
-    function getCode() {
-        const productCategory = document.getElementById("{{ form.product_category.id }}").value;
-        const AICOffice = document.getElementById("{{ form.AIC_office.id }}").value;
-        console.log(`Category ${productCategory}: ${productCategory}`);
-        console.log(`Office ${AICOffice}: ${AICOffice}`);
-
-        // Make an asynchronous request to the Flask server
-        fetch(`/get_code?product_category=${productCategory}&AIC_office=${AICOffice}`)
-            .then(response => response.json())
-            .then(data => {
-                // Handle the response data
-                if (data.code_product_category !== null && data.code_AIC_office !== null) {
-                    codeProductCategory = data.code_product_category;
-                    codeAICOffice = data.code_AIC_office;
-
-                    // Use the codes as needed
-                    console.log(`code for Product Category ${productCategory}: ${codeProductCategory}`);
-                    console.log(`code for AIC Office ${AICOffice}: ${codeAICOffice}`);
-
-                    // You can use the code further in your JavaScript code
-                    // For example, update a UI element or perform additional actions
-
-                    // Fetch the last number after getting the code
-                    fetchLastNumberFromServer(productCategory, AICOffice);
-                } else {
-                    console.log('No matching record found');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching codes:', error);
-            });
-            toggleSystemHostName()
-    }
-
-    function fetchLastNumberFromServer(productCategory, AICOffice) {
-        // Make an AJAX request to fetch the last number from the server
-        // You can use the Fetch API or another AJAX library (e.g., Axios)
-        fetch('/get_last_asset?product_category=' + productCategory + '&AIC_office=' + AICOffice)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                const lastNumber = data.lastNumber;
-                generateAssetNumber(lastNumber);
-            })
-            .catch((error) => {
-                console.error('Error fetching last number:', error);
-            });
-    }
-
-    function generateAssetNumber(lastNumber) {
-        console.log("Last Number:", lastNumber);
-        const newLastNumber = lastNumber + 1;
-        const productCategory = document.getElementById("{{ form.product_category.id }}").value;
-        const AICOffice = document.getElementById("{{ form.AIC_office.id }}").value;
-        const productCode = codeProductCategory || "GEN";
-        const AICOfficeCode = codeAICOffice || "GEN";
-
-        const assetNumber = `AIC/${AICOfficeCode}/${productCode}/${newLastNumber}`;
-
-        // Set the generated asset number in the field
-        document.getElementById("{{ form.asset_number.id }}").value = assetNumber;
-        
-    }
-
-    // Call the function to fetch the last number when needed, e.g., when AIC office or product category is selected
-    document.getElementById("{{ form.AIC_office.id }}").addEventListener("change", function () {
-        const selectedAICOffice = this.value;
-        const selectedProductCategory = document.getElementById("{{ form.product_category.id }}").value;
-        fetchLastNumberFromServer(selectedProductCategory, selectedAICOffice);
-    });
-
-    document.getElementById("{{ form.product_category.id }}").addEventListener("change", function () {
-        const selectedProductCategory = this.value;
-        const selectedAICOffice = document.getElementById("{{ form.AIC_office.id }}").value;
-        fetchLastNumberFromServer(selectedProductCategory, selectedAICOffice);
-    });
-
-    // Call getCode when the page loads or as needed
-    getCode();
-    toggleSystemHostName();
-    showDeviceSpecifications();
-
-
-
-</script>
-<script>
-
-    function uploadFiles() {
-        const filesInput = document.getElementById('invoiceFiles');
-        const fileList = filesInput.files;
-
-        // Display uploaded files
-        const downloadList = document.getElementById('downloadList');
-        for (let i = 0; i < fileList.length; i++) {
-            const file = fileList[i];
-            const blobUrl = URL.createObjectURL(file);
-            const downloadLink = document.createElement('a');
-            downloadLink.href = blobUrl;
-            downloadLink.download = file.name;
-            downloadLink.textContent = file.name;
-            downloadLink.style.display = 'block';
-            downloadList.appendChild(downloadLink);
-        }
-
-        // Limit displayed download links to 3
-        while (downloadList.children.length > 3) {
-            downloadList.removeChild(downloadList.firstChild);
-        }
-    }
-
-    // JavaScript function to handle the delete confirmation
-    document.querySelectorAll('.delete-link').forEach(function (link) {
-        link.addEventListener('click', function (event) {
-            event.preventDefault(); // Prevent the default link behavior
-            if (confirm(link.getAttribute('data-confirm'))) {
-                window.location.href = link.getAttribute('href'); // Follow the link's href
-            }
-        });
-    });
-</script>
-
-
-
-
-<script>
-    // JavaScript function to handle the delete confirmation
-    document.querySelectorAll('.delete-link').forEach(function (link) {
-        link.addEventListener('click', function (event) {
-            event.preventDefault(); // Prevent the default link behavior
-            if (confirm(link.getAttribute('data-confirm'))) {
-                window.location.href = link.getAttribute('href'); // Follow the link's href
-            }
-        });
-    });
-</script>
-
-
-<script>
-
-
-
-
-
-</script>
-<script>
-    function toggleInsuranceFields() {
-        var insuranceCoverageSelect = document.getElementById("insurance_coverage");
-        var insuranceCompanyInput = document.getElementById("insurance_company");
-        var policyNumberInput = document.getElementById("policy_number");
-        var startDateInput = document.getElementById("start_date");
-        var endDateInput = document.getElementById("end_date");
-        var insuredAmountInput = document.getElementById("insured_amount");
-        var OtherInsuranceInput = document.getElementById("other_insurance");
-
-        if (insuranceCoverageSelect.value === "Yes") {
-            insuranceCompanyInput.disabled = false;
-            policyNumberInput.disabled = false;
-            startDateInput.disabled = false;
-            endDateInput.disabled = false;
-            insuredAmountInput.disabled = false;
-            OtherInsuranceInput.disabled = false;
-        } else {
-            insuranceCompanyInput.value = "";
-            policyNumberInput.value = "";
-            startDateInput.value = "";
-            endDateInput.value = "";
-            insuredAmountInput.value = "";
-            OtherInsuranceInput.value = "";
-
-            insuranceCompanyInput.disabled = true;
-            policyNumberInput.disabled = true;
-            startDateInput.disabled = true;
-            endDateInput.disabled = true;
-            insuredAmountInput.disabled = true;
-            OtherInsuranceInput.disabled = true;
-        }
-    }
-</script>
-
-<script>
-    // Assuming you have an element with id "invoice_amount" that displays the invoice amount
-    const invoiceAmountField = document.getElementById('invoice_amount');
-    const amountPaidField = document.getElementById('{{ form.amount_paid.id }}');
-    const paymentDoneField = document.getElementById('{{ form.payment_done.id }}');
-
-    // Function to update the "Amount Paid" field based on "Payment Done" field
-    function updateAmountPaid() {
-        if (paymentDoneField.value === "Yes") {
-            amountPaidField.value = invoiceAmountField.value;
-        } else {
-            amountPaidField.value = ""; // Clear the "Amount Paid" if "Payment Done" is not "Yes"
-        }
-    }
-
-    // Call the function when the "Payment Done" field changes
-    paymentDoneField.addEventListener('change', updateAmountPaid);
-
-    // Call the function when the page loads to set the initial value
-    updateAmountPaid();
-</script>
-
-
-
-<script>
-    function validateIPv4(inputField) {
-        // Regular expression to match a valid IPv4 address
-        var ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-
-        var inputValue = inputField.value;
-
-        if (ipv4Pattern.test(inputValue)) {
-            // Input is a valid IPv4 address
-            inputField.setCustomValidity('');
-        } else {
-            // Input is not a valid IPv4 address, set a custom validation message
-            inputField.setCustomValidity('Invalid IPv4 address');
-        }
-    }
-</script>
-<script>
-    function toggleOtherInsurance() {
-        var insuranceCompanyField = document.getElementById("{{ form.insurance_company.id }}");
-        var otherInsuranceCompanyField = document.getElementById("otherInsuranceCompanyField");
-
-        if (insuranceCompanyField.value === "Others") {
-            otherInsuranceCompanyField.style.display = "block";
-        } else {
-            otherInsuranceCompanyField.style.display = "none";
-        }
-    }
-</script>
-<script>
-    function togglePaymentFields() {
-        var paymentDoneSelect = document.getElementById("payment_done");
-        var paymentDateInput = document.getElementById("payment_date");
-        var voucherNumberInput = document.getElementById("voucher_number");
-        var amountPaidInput = document.getElementById("amount_paid");
-
-        if (paymentDoneSelect.value === "Yes") {
-            paymentDateInput.disabled = false;
-            voucherNumberInput.disabled = false;
-            amountPaidInput.disabled = false;
-        } else {
-            paymentDateInput.disabled = true;
-            voucherNumberInput.disabled = true;
-            amountPaidInput.disabled = true;
-            paymentDateInput.value = "";
-            voucherNumberInput.value = "";
-            amountPaidInput.value = "";
-        }
-    }
-
-
-</script>
-<script>
-    function toggleIssueFields() {
-        var havingissueSelect = document.getElementById("having_issue");
-        var incidentIdInput = document.getElementById("incident_id");
-        var remarksInput = document.getElementById("remarks");
-
-
-        if (havingissueSelect.value === "Yes") {
-            incidentIdInput.disabled = false;
-            remarksInput.disabled = false;
-
-        } else {
-            incidentIdInput.disabled = true;
-            remarksInput.disabled = true;
-            incidentIdInput.value = "";
-            remarksInput.value = "";
-
-
-        }
-    }
-</script>
-
-<script>
-    function openUserDetails() {
-        const status = document.getElementById('asset_status').value;
-        const statusForm = document.getElementById('statusForm');
-
-        statusForm.innerHTML = ''; // Clear previous content
-
-        if (status === 'Assigned') {
-            statusForm.innerHTML = `
-            <div class="form-row">
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
-                    {{ form.domain_name(class="form-control", id=form.domain_name.id, onchange="fetchUserDetails(this.value)") }}
                 </div>
 
-                <div class="form-group col-md-4">
-                    <label for="{{ form.user_name.id }}">User Name:</label>
-                    {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)") }}
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary" id="submit-button">Add Asset</button>
+                    <br>
                 </div>
 
-                <div class="form-group col-md-4">
-                    <label for="{{ form.assigned_start_date.id }}">Assigned Date:<span style="color: red;">*</span></label>
-                    {{ form.assigned_start_date(class="form-control", id=form.assigned_start_date.id,type="date",title="Please select a date in the format YYYY-MM-DD",required="required") }}
-                  
-                </div>
-            
-                <div class="form-group col-md-4">
-                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
-                    {{ form.location(class="form-control", id=form.location.id, onchange="checkLocation()") }}                
-                </div>
 
-                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
-                    <label for="{{ form.other_location.id }}">Other Location:</label>
-                    {{ form.other_location(class="form-control", id=form.other_location.id) }}
-                </div>
+                <br>
+                <script>
+                    function toggleSystemHostName() {
+                        let check_product_category = document.getElementById("product_category").value
+                    console.log("dsdsdsd",check_product_category === "Desktop" || check_product_category === "Laptop");
+                    
+                        // let productCategoryField = document.getElementById("{{ form.product_category.id }}");
+                        let systemHostNameField = document.getElementById("systemHostNameField");
 
-                <div class="form-group col-md-4">
-                    <label for="{{ form.user_email.id }}">Email ID:</label>
-                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
-                </div>
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.contact.id }}">Contact:</label>
-                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
-                </div>
-
-                <div class="form-group col-md-4">
-                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
-                    {{ form.company(class="form-control", id=form.company.id, required="required", onchange="toggleFieldVisibility('company', 'other_company')") }}
-                </div>
-
-                <div class="form-group col-md-4" id="otherCompanyContainer" style="display: none;">
-                    <label for="{{ form.other_company.id }}">Other Company:</label>
-                    {{ form.other_company(class="form-control", id=form.other_company.id) }}
-                </div>
-            </div>
-                    `;
-        }
-        else if (status === 'In Stock') {
-            statusForm.innerHTML = `
-                    <div class="form-row">
-                       
-                <label for="{{ form.in_stock_start_date.id }}">Instock Date:<span style="color: red;">*</span></label>
-                    {{ form.in_stock_start_date(class="form-control", id=form.in_stock_start_date.id,  type="date",required="required") }}
-               
-            </div>
-            
-            `;
-        }
-    }
-
-</script>
+                        if (check_product_category === "Desktop" || check_product_category === "Laptop") {
 
 
-<script>
+                            systemHostNameField.classList.remove("d-none");
+                            systemHostNameField.classList.add("d-block");
+                        } else {
+                            systemHostNameField.classList.remove("d-block");
 
-
-
-    document.getElementById('add_form').addEventListener('submit', function (event) {
-        const assetStatus = document.getElementById('asset_status').value;
-        let dateFieldToCheck = '';
-
-        // Determine the date field to check based on the selected asset status
-        switch (assetStatus) {
-            case 'Assigned':
-                dateFieldToCheck = 'assigned_start_date';
-                break;
-            case 'In Stock':
-                dateFieldToCheck = 'instock_start_date';
-                break;
-            // Add cases for Transferred and Disposed and set the respective date fields
-        }
-
-        const dateField = document.getElementById(dateFieldToCheck);
-
-        if (dateField && !dateField.value) {
-            event.preventDefault(); // Prevent form submission
-            alert(`Please fill in the ${assetStatus} date field.`); // Display an alert message
-            // Alternatively, use a modal/popup library to display a more interactive message
-        }
-    });
-
-
-
-
-
-    function checkLocation() {
-        const locationDropdown = document.getElementById('location');
-        const otherLocationContainer = document.getElementById('otherLocationContainer');
-        const otherLocationInput = document.getElementById('other_location');
-
-        if (locationDropdown.value === 'Others') {
-            otherLocationContainer.style.display = 'block';
-            otherLocationInput.setAttribute('required', 'required');
-        } else {
-            otherLocationContainer.style.display = 'none';
-            otherLocationInput.removeAttribute('required');
-        }
-    }
-    function checkCompany() {
-        const CompanyDropdown = document.getElementById('company');
-        const otherCompanyContainer = document.getElementById('otherCompanyContainer');
-        const otherCompanyInput = document.getElementById('other_company');
-
-        if (CompanyDropdown.value === 'Others') {
-            otherCompanyContainer.style.display = 'block';
-            otherCompanyInput.setAttribute('required', 'required');
-        } else {
-            otherCompanyContainer.style.display = 'none';
-            otherCompanyInput.removeAttribute('required');
-        }
-    }
-
-
-
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
-
-    for (i = 0; i < coll.length; i++) {
-        coll[i].addEventListener("click", function () {
-            this.classList.toggle("active");
-            var content = this.nextElementSibling;
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
-            }
-        });
-    }
-</script>
-
-
-
-<script type="text/javascript">
-    // Define a function to fetch user details via AJAX
-    function fetchUserDetails(domainName) {
-        // Send an AJAX request to the server to get user details
-        $.ajax({
-            url: "{{ url_for('asset_blueprint.get_user_details') }}",
-            method: "POST",
-            data: { domain_name: domainName },
-            success: function (response) {
-                if (response.user_name) {
-                    // Update the user name, email, and contact fields with the fetched data
-                    $("#{{ form.user_name.id }}").val(response.user_name);
-                    $("#{{ form.user_email.id }}").val(response.user_email);
-                    $("#{{ form.contact.id }}").val(response.user_contact);
-                } else {
-                    // Handle the case where no user details were found
-                    console.error("No user details found for the provided domain name.");
-                }
-            },
-            error: function () {
-                console.error("Error fetching user details.");
-            }
-        });
-    }
-
-    $(document).ready(function () {
-        // Attach the fetchUserDetails function to the change event of the domain_name field
-        $("#{{ form.domain_name.id }}").change(function () {
-            var selectedDomainName = $(this).val();
-            fetchUserDetails(selectedDomainName);
-        });
-    });
-
-    // You can also call fetchUserDetails explicitly when needed
-    function someOtherFunction() {
-        var domainName = $("#{{ form.domain_name.id }}").val(); // Get the domain name from the field
-        fetchUserDetails(domainName); // Call fetchUserDetails
-    }
-</script>
-
-
-<script>
-    $(document).ready(function () {
-        $('#submit').click(function () {
-            var oemSerialNumber = $('#oem_serial_number').val();
-
-            // Perform an AJAX request to check if the oem_serial_number already exists
-            $.ajax({
-                type: 'POST',
-                url: '/check_oem_serial_number', // Replace with your endpoint to check uniqueness
-                data: { oem_serial_number: oemSerialNumber },
-                success: function (response) {
-                    if (response.exists) {
-                        $('#errorMessage').show();
-                    } else {
-                        // Proceed with form submission
-                        // For example, $('#yourForm').submit();
+                            systemHostNameField.classList.add("d-none");
+                        }
                     }
+
+                        function showDeviceSpecifications() {
+                        // let check_product_category = document.getElementById("product_category").value
+
+
+                        const product_category = document.getElementById("product_category").value
+                        let specificationsForm = document.getElementById('specificationsForm');
+                        // console.log(`Category ${productCategory}: ${productCategory}`);
+                        console.log('hdsjkjdjhdsdjsd',product_category)
+
+                        specificationsForm.innerHTML = ''; // Clear previous content
+
+                        if (product_category === 'Laptop' || product_category === 'Desktop') {
+                            specificationsForm.innerHTML = `
+                                                    <h4 style="background-color: green;
+                    color: white;
+                    cursor: pointer;
+                    padding: 18px;
+                    width: 100%;
+                    border: none;
+                    text-align: left;
+                    outline: none;
+                    font-size: 15px;">Product Specifications</h4>                               
+                        <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_os.id }}">Operating System:</label>
+                                    {{ form.desk_lap_os(class="form-control", id=form.desk_lap_os.id, placeholder="Enter Operating System") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_hdd_type.id }}">HDD Type:</label>
+                                    {{ form.desk_lap_hdd_type(class="form-control", id=form.desk_lap_hdd_type.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_hdd_size.id }}">HDD Size (GB):</label>
+                                    {{ form.desk_lap_hdd_size(class="form-control", id=form.desk_lap_hdd_size.id) }}
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_ram_type.id }}">RAM Type:</label>
+                                    {{ form.desk_lap_ram_type(class="form-control", id=form.desk_lap_ram_type.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_ram_size.id }}">RAM Size:</label>
+                                    {{ form.desk_lap_ram_size(class="form-control", id=form.desk_lap_ram_size.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_ram_frequency.id }}">RAM Frequency (MHz):</label>
+                                    {{ form.desk_lap_ram_frequency(class="form-control", id=form.desk_lap_ram_frequency.id) }}
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_ram_expandable.id }}">RAM Expandable Upto (GB):</label>
+                                    {{ form.desk_lap_ram_expandable(class="form-control", id=form.desk_lap_ram_expandable.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_ram_slots.id }}">Number of RAM Slots:</label>
+                                    {{ form.desk_lap_ram_slots(class="form-control", id=form.desk_lap_ram_slots.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_hdmi_port.id }}">HDMI Port (Yes/No):</label>
+                                    {{ form.desk_lap_hdmi_port(class="form-control", id=form.desk_lap_hdmi_port.id) }}
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_display_size.id }}">Display Size (Inch):</label>
+                                    {{ form.desk_lap_display_size(class="form-control", id=form.desk_lap_display_size.id, placeholder="Enter Display Size") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_graphics_card_size.id }}">Graphics Card Size (GB):</label>
+                                    {{ form.desk_lap_graphics_card_size(class="form-control", id=form.desk_lap_graphics_card_size.id) }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.desk_lap_graphics_card_version.id }}">Graphics Card Version:</label>
+                                    {{ form.desk_lap_graphics_card_version(class="form-control", id=form.desk_lap_graphics_card_version.id) }}
+                                </div>
+                            </div>
+
+                                                        
+                                                    `;
+
+                        } else if (product_category === 'Printer') {
+                            specificationsForm.innerHTML = `
+                                                    
+                                                    <h4 style="background-color: green;
+                    color: white;
+                    cursor: pointer;
+                    padding: 18px;
+                    width: 100%;
+                    border: none;
+                    text-align: left;
+                    outline: none;
+                    font-size: 15px;">Product Specifications</h4>    
+                                                        
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.printer_type.id }}">Printer Type:</label>
+                                {{ form.printer_type(class="form-control", id=form.printer_type.id, placeholder="Enter Printer Type") }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.printing_type.id }}">Printing Type:</label>
+                                {{ form.printing_type(class="form-control", id=form.printing_type.id) }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.printer_connectivity.id }}">Connectivity:</label>
+                                {{ form.printer_connectivity(class="form-control", id=form.printer_connectivity.id) }}
+                            </div>
+                            </div>
+                            <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.printer_toner.id }}">Printer Toner Name:</label>
+                                {{ form.printer_toner(class="form-control", id=form.printer_toner.id, placeholder="Enter Printer Toner Name") }}
+                            </div>
+                        </div>
+
+                                            
+                                                    `;
+                        } else if (product_category === 'HDD Specs') {
+                            specificationsForm.innerHTML = `
+                                                    <h4 style="background-color: green;
+                    color: white;
+                    cursor: pointer;
+                    padding: 18px;
+                    width: 100%;
+                    border: none;
+                    text-align: left;
+                    outline: none;
+                    font-size: 15px;">Product Specifications</h4>       
+                                                    
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.hdd_size.id }}">HDD Size (GB):</label>
+                                    {{ form.hdd_size(class="form-control", id=form.hdd_size.id, placeholder="Enter HDD Size") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.hdd_type.id }}">HDD Type:</label>
+                                    {{ form.hdd_type(class="form-control", id=form.hdd_type.id, placeholder="Enter HDD Type") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.hdd_connectivity.id }}">Connectivity:</label>
+                                    {{ form.hdd_connectivity(class="form-control", id=form.hdd_connectivity.id) }}
+                                </div>
+                            </div>
+
+                                                        
+                                                    `;
+                        } else if (product_category === 'Tablet') {
+                            specificationsForm.innerHTML = `
+                                                    <h4 style="background-color: green;
+                    color: white;
+                    cursor: pointer;
+                    padding: 18px;
+                    width: 100%;
+                    border: none;
+                    text-align: left;
+                    outline: none;
+                    font-size: 15px;">Product Specifications</h4> 
+                            <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.tab_os.id }}">Operating System:</label>
+                                {{ form.tab_os(class="form-control", id=form.tab_os.id, placeholder="Enter Operating System") }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.tab_storage.id }}">Storage (ROM) GB:</label>
+                                {{ form.tab_storage(class="form-control", id=form.tab_storage.id, placeholder="Enter Storage (ROM) GB") }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.tab_ram_size.id }}">RAM Size (GB):</label>
+                                {{ form.tab_ram_size(class="form-control", id=form.tab_ram_size.id, placeholder="Enter RAM Size") }}
+                            </div>
+                            </div>
+                            <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.tab_display_size.id }}">Display Size (Inch):</label>
+                                {{ form.tab_display_size(class="form-control", id=form.tab_display_size.id, placeholder="Enter Display Size") }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.tab_stylus.id }}">Stylus (Yes/No):</label>
+                                {{ form.tab_stylus(class="form-control", id=form.tab_stylus.id) }}
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="{{ form.tab_connectivity.id }}">Connectivity:</label>
+                                {{ form.tab_connectivity(class="form-control", id=form.tab_connectivity.id) }}
+                            </div>
+                            </div>
+
+                                    
+                                                        
+                                                    `;
+                        } else if (product_category === 'Monitor') {
+                            specificationsForm.innerHTML = `
+                                                        
+                                                    
+                                                    <h4 style="background-color: green;
+                    color: white;
+                    cursor: pointer;
+                    padding: 18px;
+                    width: 100%;
+                    border: none;
+                    text-align: left;
+                    outline: none;
+                    font-size: 15px;">Product Specifications</h4>  
+                                                        
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.monitor_display_size.id }}">Display Size (Inch):</label>
+                                    {{ form.monitor_display_size(class="form-control", id=form.monitor_display_size.id, placeholder="Enter Display Size") }}
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.monitor_screen_type.id }}"> Screen type</label>
+                                    {{ form.monitor_screen_type(class="form-control", id=form.monitor_screen_type.id) }}
+                                </div>
+                            
+                            </div>
+                                                        
+                                                    `;
+                        } else if (product_category === 'UPS') {
+                            specificationsForm.innerHTML = `
+                                                        
+                                            
+                                                    <h4 style="background-color: green;
+                    color: white;
+                    cursor: pointer;
+                    padding: 18px;
+                    width: 100%;
+                    border: none;
+                    text-align: left;
+                    outline: none;
+                    font-size: 15px;">Product Specifications</h4> 
+                        <div class="form-row">
+                            <div class="container mt-4">
+                                <label for="{{ form.ups_capacity.id }}">UPS Capacity (Kva):</label>
+                                {{ form.ups_capacity(class="form-control", id=form.ups_capacity.id, placeholder="Enter UPS Capacity (Kva)") }}
+                            </div>
+                            <div class="container mt-4">
+                                <label for="{{ form.ups_amc.id }}">AMC (Yes/No):</label>
+                                {{ form.ups_amc(class="form-control", id=form.ups_amc.id) }}
+                            </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="container mt-4">
+                                <label for="{{ form.ups_start_date.id }}">Start Date:</label>
+                                {{ form.ups_start_date(class="form-control", id=form.ups_start_date.id,format="%d/%m/%Y") }}
+                            
+
+                            </div>
+                            <div class="container mt-4">
+                                <label for="{{ form.ups_end_date.id }}">End Date:</label>
+                                {{ form.ups_end_date(class="form-control", id=form.ups_end_date.id,format="%d/%m/%Y" )}}
+                            </div>
+                        </div>
+                                                    
+                                                    `;
+
+                        }
+
+                    }
+                    
+                var check_serial_number;
+                
+                    function getSerialNumber(serial_number){
+                
+                console.log("sdkjsnjdk",serial_number?.value);
+
+                    // const assetNumber = this.value;
+                
+                    fetch('/check_number', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify( { serial_number: serial_number?.value })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("sdjbjbnkl",data);
+                        
+                        const statusElement = document.getElementById('errorMessage');
+                        if (data.status === 403) {
+
+                            statusElement.classList.remove("d-none")
+                            statusElement.classList.add("d-block")
+                            statusElement.style.color = 'red';
+                        } else if (data.status === 200)  {
+                            statusElement.classList.add("d-none")
+                            statusElement.classList.remove("d-block")
+                        } else{
+                            console.log("dfjdjhkjsdk");
+                            
+                        }
+                    });
                 }
-            });
-        });
-    });
+                // getSerialNumber()
+                    
+                    function getCode() {
+                        const productCategory = document.getElementById("{{ form.product_category.id }}").value;
+                        const AICOffice = document.getElementById("{{ form.AIC_office.id }}").value;
+                        console.log(`Category ${productCategory}: ${productCategory}`);
+                        console.log(`Office ${AICOffice}: ${AICOffice}`);
 
-</script>
+                        // Make an asynchronous request to the Flask server
+                        fetch(`/get_code?product_category=${productCategory}&AIC_office=${AICOffice}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Handle the response data
+                                if (data.code_product_category !== null && data.code_AIC_office !== null) {
+                                    codeProductCategory = data.code_product_category;
+                                    codeAICOffice = data.code_AIC_office;
 
-</form>
+                                    // Use the codes as needed
+                                    console.log(`code for Product Category ${productCategory}: ${codeProductCategory}`);
+                                    console.log(`code for AIC Office ${AICOffice}: ${codeAICOffice}`);
+
+                                    // You can use the code further in your JavaScript code
+                                    // For example, update a UI element or perform additional actions
+
+                                    // Fetch the last number after getting the code
+                                    fetchLastNumberFromServer(productCategory, AICOffice);
+                                } else {
+                                    console.log('No matching record found');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching codes:', error);
+                            });
+                            toggleSystemHostName()
+                    }
+
+                    function fetchLastNumberFromServer(productCategory, AICOffice) {
+                        // Make an AJAX request to fetch the last number from the server
+                        // You can use the Fetch API or another AJAX library (e.g., Axios)
+                        fetch('/get_last_asset?product_category=' + productCategory + '&AIC_office=' + AICOffice)
+                            .then((response) => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then((data) => {
+                                const lastNumber = data.lastNumber;
+                                generateAssetNumber(lastNumber);
+                            })
+                            .catch((error) => {
+                                console.error('Error fetching last number:', error);
+                            });
+                    }
+
+                    function generateAssetNumber(lastNumber) {
+                        console.log("Last Number:", lastNumber);
+                        const newLastNumber = lastNumber + 1;
+                        const productCategory = document.getElementById("{{ form.product_category.id }}").value;
+                        const AICOffice = document.getElementById("{{ form.AIC_office.id }}").value;
+                        const productCode = codeProductCategory || "GEN";
+                        const AICOfficeCode = codeAICOffice || "GEN";
+
+                        const assetNumber = `AIC/${AICOfficeCode}/${productCode}/${newLastNumber}`;
+
+                        // Set the generated asset number in the field
+                        document.getElementById("{{ form.asset_number.id }}").value = assetNumber;
+                        
+                    }
+
+                    // Call the function to fetch the last number when needed, e.g., when AIC office or product category is selected
+                    document.getElementById("{{ form.AIC_office.id }}").addEventListener("change", function () {
+                        const selectedAICOffice = this.value;
+                        const selectedProductCategory = document.getElementById("{{ form.product_category.id }}").value;
+                        fetchLastNumberFromServer(selectedProductCategory, selectedAICOffice);
+                    });
+
+                    document.getElementById("{{ form.product_category.id }}").addEventListener("change", function () {
+                        const selectedProductCategory = this.value;
+                        const selectedAICOffice = document.getElementById("{{ form.AIC_office.id }}").value;
+                        fetchLastNumberFromServer(selectedProductCategory, selectedAICOffice);
+                    });
+
+                    // Call getCode when the page loads or as needed
+                    getCode();
+                    toggleSystemHostName();
+                    showDeviceSpecifications();
+
+
+
+                </script>
+                <script>
+
+                    function uploadFiles() {
+                        const filesInput = document.getElementById('invoiceFiles');
+                        const fileList = filesInput.files;
+
+                        // Display uploaded files
+                        const downloadList = document.getElementById('downloadList');
+                        for (let i = 0; i < fileList.length; i++) {
+                            const file = fileList[i];
+                            const blobUrl = URL.createObjectURL(file);
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = blobUrl;
+                            downloadLink.download = file.name;
+                            downloadLink.textContent = file.name;
+                            downloadLink.style.display = 'block';
+                            downloadList.appendChild(downloadLink);
+                        }
+
+                        // Limit displayed download links to 3
+                        while (downloadList.children.length > 3) {
+                            downloadList.removeChild(downloadList.firstChild);
+                        }
+                    }
+
+                    // JavaScript function to handle the delete confirmation
+                    document.querySelectorAll('.delete-link').forEach(function (link) {
+                        link.addEventListener('click', function (event) {
+                            event.preventDefault(); // Prevent the default link behavior
+                            if (confirm(link.getAttribute('data-confirm'))) {
+                                window.location.href = link.getAttribute('href'); // Follow the link's href
+                            }
+                        });
+                    });
+                </script>
+
+
+
+
+                <script>
+                    // JavaScript function to handle the delete confirmation
+                    document.querySelectorAll('.delete-link').forEach(function (link) {
+                        link.addEventListener('click', function (event) {
+                            event.preventDefault(); // Prevent the default link behavior
+                            if (confirm(link.getAttribute('data-confirm'))) {
+                                window.location.href = link.getAttribute('href'); // Follow the link's href
+                            }
+                        });
+                    });
+                </script>
+
+
+                <script>
+
+
+
+
+
+                </script>
+                <script>
+                    function toggleInsuranceFields() {
+                        var insuranceCoverageSelect = document.getElementById("insurance_coverage");
+                        var insuranceCompanyInput = document.getElementById("insurance_company");
+                        var policyNumberInput = document.getElementById("policy_number");
+                        var startDateInput = document.getElementById("start_date");
+                        var endDateInput = document.getElementById("end_date");
+                        var insuredAmountInput = document.getElementById("insured_amount");
+                        var OtherInsuranceInput = document.getElementById("other_insurance");
+
+                        if (insuranceCoverageSelect.value === "Yes") {
+                            insuranceCompanyInput.disabled = false;
+                            policyNumberInput.disabled = false;
+                            startDateInput.disabled = false;
+                            endDateInput.disabled = false;
+                            insuredAmountInput.disabled = false;
+                            OtherInsuranceInput.disabled = false;
+                        } else {
+                            insuranceCompanyInput.value = "";
+                            policyNumberInput.value = "";
+                            startDateInput.value = "";
+                            endDateInput.value = "";
+                            insuredAmountInput.value = "";
+                            OtherInsuranceInput.value = "";
+
+                            insuranceCompanyInput.disabled = true;
+                            policyNumberInput.disabled = true;
+                            startDateInput.disabled = true;
+                            endDateInput.disabled = true;
+                            insuredAmountInput.disabled = true;
+                            OtherInsuranceInput.disabled = true;
+                        }
+                    }
+                </script>
+
+                <script>
+                    // Assuming you have an element with id "invoice_amount" that displays the invoice amount
+                    const invoiceAmountField = document.getElementById('invoice_amount');
+                    const amountPaidField = document.getElementById('{{ form.amount_paid.id }}');
+                    const paymentDoneField = document.getElementById('{{ form.payment_done.id }}');
+
+                    // Function to update the "Amount Paid" field based on "Payment Done" field
+                    function updateAmountPaid() {
+                        if (paymentDoneField.value === "Yes") {
+                            amountPaidField.value = invoiceAmountField.value;
+                        } else {
+                            amountPaidField.value = ""; // Clear the "Amount Paid" if "Payment Done" is not "Yes"
+                        }
+                    }
+
+                    // Call the function when the "Payment Done" field changes
+                    paymentDoneField.addEventListener('change', updateAmountPaid);
+
+                    // Call the function when the page loads to set the initial value
+                    updateAmountPaid();
+                </script>
+
+
+
+                <script>
+                    function validateIPv4(inputField) {
+                        // Regular expression to match a valid IPv4 address
+                        var ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+                        var inputValue = inputField.value;
+
+                        if (ipv4Pattern.test(inputValue)) {
+                            // Input is a valid IPv4 address
+                            inputField.setCustomValidity('');
+                        } else {
+                            // Input is not a valid IPv4 address, set a custom validation message
+                            inputField.setCustomValidity('Invalid IPv4 address');
+                        }
+                    }
+                </script>
+                <script>
+                    function toggleOtherInsurance() {
+                        var insuranceCompanyField = document.getElementById("{{ form.insurance_company.id }}");
+                        var otherInsuranceCompanyField = document.getElementById("otherInsuranceCompanyField");
+
+                        if (insuranceCompanyField.value === "Others") {
+                            otherInsuranceCompanyField.style.display = "block";
+                        } else {
+                            otherInsuranceCompanyField.style.display = "none";
+                        }
+                    }
+                </script>
+                <script>
+                    function togglePaymentFields() {
+                        var paymentDoneSelect = document.getElementById("payment_done");
+                        var paymentDateInput = document.getElementById("payment_date");
+                        var voucherNumberInput = document.getElementById("voucher_number");
+                        var amountPaidInput = document.getElementById("amount_paid");
+
+                        if (paymentDoneSelect.value === "Yes") {
+                            paymentDateInput.disabled = false;
+                            voucherNumberInput.disabled = false;
+                            amountPaidInput.disabled = false;
+                        } else {
+                            paymentDateInput.disabled = true;
+                            voucherNumberInput.disabled = true;
+                            amountPaidInput.disabled = true;
+                            paymentDateInput.value = "";
+                            voucherNumberInput.value = "";
+                            amountPaidInput.value = "";
+                        }
+                    }
+
+
+                </script>
+                <script>
+                    function toggleIssueFields() {
+                        var havingissueSelect = document.getElementById("having_issue");
+                        var incidentIdInput = document.getElementById("incident_id");
+                        var remarksInput = document.getElementById("remarks");
+
+
+                        if (havingissueSelect.value === "Yes") {
+                            incidentIdInput.disabled = false;
+                            remarksInput.disabled = false;
+
+                        } else {
+                            incidentIdInput.disabled = true;
+                            remarksInput.disabled = true;
+                            incidentIdInput.value = "";
+                            remarksInput.value = "";
+
+
+                        }
+                    }
+                </script>
+
+                <script>
+                    function openUserDetails() {
+                        const status = document.getElementById('asset_status').value;
+                        const statusForm = document.getElementById('statusForm');
+
+                        statusForm.innerHTML = ''; // Clear previous content
+
+                        if (status === 'Assigned') {
+                            statusForm.innerHTML = `
+                            <div class="form-row">
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.domain_name.id }}">Domain Name:</label>
+                                    {{ form.domain_name(class="form-control", id=form.domain_name.id, onchange="fetchUserDetails(this.value)") }}
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.user_name.id }}">User Name:</label>
+                                    {{ form.user_name(class="form-control", id=form.user_name.id, onchange="fetchUserDetails(this.value)") }}
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.assigned_start_date.id }}">Assigned Date:<span style="color: red;">*</span></label>
+                                    {{ form.assigned_start_date(class="form-control", id=form.assigned_start_date.id,type="date",title="Please select a date in the format YYYY-MM-DD",required="required") }}
+                                
+                                </div>
+                            
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.location.id }}">Location:<span style="color: red;">*</span></label>
+                                    {{ form.location(class="form-control", id=form.location.id, onchange="checkLocation()") }}                
+                                </div>
+
+                                <div class="form-group col-md-4"  id="otherLocationContainer" style="display: none;">
+                                    <label for="{{ form.other_location.id }}">Other Location:</label>
+                                    {{ form.other_location(class="form-control", id=form.other_location.id) }}
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.user_email.id }}">Email ID:</label>
+                                    {{ form.user_email(class="form-control", id=form.user_email.id, placeholder="Email ID", readonly="readonly") }}
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.contact.id }}">Contact:</label>
+                                    {{ form.contact(class="form-control", id=form.contact.id, placeholder="Contact", readonly="readonly") }}
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label for="{{ form.company.id }}">Company<span style="color: red;">*</span></label>
+                                    {{ form.company(class="form-control", id=form.company.id, required="required", onchange="toggleFieldVisibility('company', 'other_company')") }}
+                                </div>
+
+                                <div class="form-group col-md-4" id="otherCompanyContainer" style="display: none;">
+                                    <label for="{{ form.other_company.id }}">Other Company:</label>
+                                    {{ form.other_company(class="form-control", id=form.other_company.id) }}
+                                </div>
+                            </div>
+                                    `;
+                        }
+                        else if (status === 'In Stock') {
+                            statusForm.innerHTML = `
+                                    <div class="form-row">
+                                    
+                                <label for="{{ form.in_stock_start_date.id }}">Instock Date:<span style="color: red;">*</span></label>
+                                    {{ form.in_stock_start_date(class="form-control", id=form.in_stock_start_date.id,  type="date",required="required") }}
+                            
+                            </div>
+                            
+                            `;
+                        }
+                    }
+
+                </script>
+
+
+                <script>
+
+
+
+                    document.getElementById('add_form').addEventListener('submit', function (event) {
+                        console.log("sdjhgsha");
+                        
+                        const assetStatus = document.getElementById('asset_status').value;
+                        let dateFieldToCheck = '';
+
+                        // Determine the date field to check based on the selected asset status
+                        switch (assetStatus) {
+                            case 'Assigned':
+                                dateFieldToCheck = 'assigned_start_date';
+                                break;
+                            case 'In Stock':
+                                dateFieldToCheck = 'instock_start_date';
+                                break;
+                            // Add cases for Transferred and Disposed and set the respective date fields
+                        }
+
+                        const dateField = document.getElementById(dateFieldToCheck);
+
+                        if (dateField && !dateField.value) {
+                            event.preventDefault(); // Prevent form submission
+                            alert(`Please fill in the ${assetStatus} date field.`); // Display an alert message
+                            // Alternatively, use a modal/popup library to display a more interactive message
+                        }
+                    });
+
+
+
+
+
+                    function checkLocation() {
+                        const locationDropdown = document.getElementById('location');
+                        const otherLocationContainer = document.getElementById('otherLocationContainer');
+                        const otherLocationInput = document.getElementById('other_location');
+
+                        if (locationDropdown.value === 'Others') {
+                            otherLocationContainer.style.display = 'block';
+                            otherLocationInput.setAttribute('required', 'required');
+                        } else {
+                            otherLocationContainer.style.display = 'none';
+                            otherLocationInput.removeAttribute('required');
+                        }
+                    }
+                    function checkCompany() {
+                        const CompanyDropdown = document.getElementById('company');
+                        const otherCompanyContainer = document.getElementById('otherCompanyContainer');
+                        const otherCompanyInput = document.getElementById('other_company');
+
+                        if (CompanyDropdown.value === 'Others') {
+                            otherCompanyContainer.style.display = 'block';
+                            otherCompanyInput.setAttribute('required', 'required');
+                        } else {
+                            otherCompanyContainer.style.display = 'none';
+                            otherCompanyInput.removeAttribute('required');
+                        }
+                    }
+
+
+
+                    var coll = document.getElementsByClassName("collapsible");
+                    var i;
+
+                    for (i = 0; i < coll.length; i++) {
+                        coll[i].addEventListener("click", function () {
+                            this.classList.toggle("active");
+                            var content = this.nextElementSibling;
+                            if (content.style.display === "block") {
+                                content.style.display = "none";
+                            } else {
+                                content.style.display = "block";
+                            }
+                        });
+                    }
+                </script>
+
+
+
+                <script type="text/javascript">
+                    // Define a function to fetch user details via AJAX
+                    function fetchUserDetails(domainName) {
+                        // Send an AJAX request to the server to get user details
+                        $.ajax({
+                            url: "{{ url_for('asset_blueprint.get_user_details') }}",
+                            method: "POST",
+                            data: { domain_name: domainName },
+                            success: function (response) {
+                                if (response.user_name) {
+                                    // Update the user name, email, and contact fields with the fetched data
+                                    $("#{{ form.user_name.id }}").val(response.user_name);
+                                    $("#{{ form.user_email.id }}").val(response.user_email);
+                                    $("#{{ form.contact.id }}").val(response.user_contact);
+                                } else {
+                                    // Handle the case where no user details were found
+                                    console.error("No user details found for the provided domain name.");
+                                }
+                            },
+                            error: function () {
+                                console.error("Error fetching user details.");
+                            }
+                        });
+                    }
+
+                    $(document).ready(function () {
+                        // Attach the fetchUserDetails function to the change event of the domain_name field
+                        $("#{{ form.domain_name.id }}").change(function () {
+                            var selectedDomainName = $(this).val();
+                            fetchUserDetails(selectedDomainName);
+                        });
+                    });
+
+                    // You can also call fetchUserDetails explicitly when needed
+                    function someOtherFunction() {
+                        var domainName = $("#{{ form.domain_name.id }}").val(); // Get the domain name from the field
+                        fetchUserDetails(domainName); // Call fetchUserDetails
+                    }
+                </script>
+
+
+                <script>
+                    $(document).ready(function () {
+                        $('#submit').click(function () {
+                            console.log("sakdjfjjbkm");
+                            
+                            var oemSerialNumber = $('#oem_serial_number').val();
+
+                            // Perform an AJAX request to check if the oem_serial_number already exists
+                            $.ajax({
+                                type: 'POST',
+                                url: '/check_oem_serial_number', // Replace with your endpoint to check uniqueness
+                                data: { oem_serial_number: oemSerialNumber },
+                                success: function (response) {
+                                    if (response.exists) {
+                                        $('#errorMessage').show();
+                                    } else {
+                                        // Proceed with form submission
+                                        // For example, $('#yourForm').submit();
+                                    }
+                                }
+                            });
+                        });
+                    });
+
+                </script>
+
+    </form>
 </div>
 <style>
     .h6-format {

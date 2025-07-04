@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, or_
 from my_asset_project import app
 from flask import jsonify, request
 from sqlalchemy.sql import column
+import traceback
 
 
 
@@ -66,9 +67,9 @@ def get_last_asset():
     if AIC_office in ["Statesman House", "East Kidwai Nagar", "Parsvnath Capital Towers"]:
         # If AIC_office is one of the specified values, fetch the maximum asset number
         max_asset = Asset_Details.query.filter(Asset_Details.product_category == product_category, 
-                                               or_(Asset_Details.AIC_office == "HO Statesman",
-                                                   Asset_Details.AIC_office == "HO Kidwai Nagar",
-                                                   Asset_Details.AIC_office == "HO Parsvnath"))\
+                                               or_(Asset_Details.AIC_office == "Statesman House",
+                                                   Asset_Details.AIC_office == "East Kidwai Nagar",
+                                                   Asset_Details.AIC_office == "Parsvnath Capital Towers"))\
                                       .order_by(Asset_Details.asset_number.desc())\
                                       .first()
         
@@ -86,7 +87,7 @@ def get_last_asset():
             last_asset_number = int(last_asset.asset_number.split("/")[-1])
         else:
             last_asset_number = 0  # Handle cases where no previous asset exists
-
+    print(last_asset_number, "Last Asset")
     # Return the last asset number as JSON
     return jsonify({'lastNumber': last_asset_number})
 
@@ -170,74 +171,75 @@ def get_code():
 ###Add New Asset
 @add_new_asset.route('/add_asset', methods=['POST', 'GET'])
 def add_asset():
+    print("iiiiiiiiiiiiiii")
     form = AddNewAssetForm()
     name=session.get('name')
     if request.method == 'POST':
-       
+        # try:
         new_asset = Asset_Details(asset_number= form.asset_number.data, product_category= form.product_category.data, 
-                                  product_name = form.product_name.data, 
-                                  model_version= form.model_version.data, manufacturer = form.manufacturer.data, 
-                                  asset_status = form.asset_status.data, user_name=form.user_name.data, domain_name=form.domain_name.data, location=form.location.data,
-                                  other_location=form.other_location.data, user_email=form.user_email.data, contact=form.contact.data, company=form.company.data, 
-                                  other_company=form.other_company.data, assigned_start_date=form.assigned_start_date.data,in_stock_start_date=form.in_stock_start_date.data,
-                                  record_insertion_date=datetime.today(),
+                                product_name = form.product_name.data, 
+                                model_version= form.model_version.data, manufacturer = form.manufacturer.data, 
+                                asset_status = form.asset_status.data, user_name=form.user_name.data, domain_name=form.domain_name.data, location=form.location.data,
+                                other_location=form.other_location.data, user_email=form.user_email.data, contact=form.contact.data, company=form.company.data, 
+                                other_company=form.other_company.data, assigned_start_date=form.assigned_start_date.data,in_stock_start_date=form.in_stock_start_date.data,
+                                record_insertion_date=datetime.today(),
                                     not_working_start_date=form.not_working_start_date.data,end_of_life_start_date=form.end_of_life_start_date.data,
-                                  retain_date=form.retain_date.data,retain_amount=form.retain_amount.data,transfer_date=form.transfer_date.data,
-                                  transferred_from=form.transferred_from.data, transferred_to=form.transferred_to.data,transferred_amount=form.transferred_amount.data,
-                                  disposed_date=form.disposed_date.data,disposed_amount=form.disposed_amount.data,
-                                   asset_category= form.asset_category.data, 
-                                  oem_serial_number = form.oem_serial_number.data, system_host_name = form.system_host_name.data, 
-                                  ip_address = form.ip_address.data, AIC_office=form.AIC_office.data,
-                                  oem_asset_warranty = form.oem_asset_warranty.data, oem_warranty_expiry_date = form.oem_warranty_expiry_date.data, 
-                                  insurance_coverage= form.insurance_coverage.data, insurance_company= form.insurance_company.data,
-                                  policy_number = form.policy_number.data, 
-                                  insured_amount = form.insured_amount.data, start_date = form.start_date.data, 
-                                  end_date= form.end_date.data, supplier_name = form.supplier_name.data, 
-                                  supplier_contact = form.supplier_contact.data, supplier_location = form.supplier_location.data, supplier_address=form.supplier_address.data,
-                                  supplier_email = form.supplier_email.data, having_issue=form.having_issue.data,
-                                  incident_id = form.incident_id.data, remarks = form.remarks.data, payment_done= form.payment_done.data, 
-                                  payment_date = form.payment_date.data, amount_paid=form.amount_paid.data,
-                                  voucher_number = form.voucher_number.data, device_type = form.device_type.data, 
-                                  desk_lap_os = form.desk_lap_os.data, desk_lap_hdd_type = form.desk_lap_hdd_type.data, 
-                                  desk_lap_hdd_size = form.desk_lap_hdd_size.data, desk_lap_ram_type = form.desk_lap_ram_type.data, desk_lap_ram_size = form.desk_lap_ram_size.data, 
-                                  desk_lap_ram_frequency = form.desk_lap_ram_frequency.data, desk_lap_ram_expandable = form.desk_lap_ram_expandable.data, 
-                                  desk_lap_ram_slots = form.desk_lap_ram_slots.data, desk_lap_hdmi_port = form.desk_lap_hdmi_port.data, 
-                                  desk_lap_display_size = form.desk_lap_display_size.data, desk_lap_graphics_card_size = form.desk_lap_graphics_card_size.data, 
-                                  desk_lap_graphics_card_version = form.desk_lap_graphics_card_version.data, printer_type = form.printer_type.data, printing_type= form.printing_type.data, 
-                                  printer_toner= form.printer_toner.data, printer_connectivity= form.printer_connectivity.data, hdd_size= form.hdd_size.data, 
-                                  hdd_type= form.hdd_type.data, hdd_connectivity= form.hdd_connectivity.data, tab_os= form.tab_os.data, tab_storage= form.tab_storage.data, 
-                                  tab_ram_size= form.tab_ram_size.data, tab_display_size= form.tab_display_size.data, tab_stylus= form.tab_stylus.data, 
-                                  tab_connectivity= form.tab_connectivity.data, monitor_display_size= form.monitor_display_size.data, monitor_screen_type=form.monitor_screen_type.data, 
-                                   ups_capacity= form.ups_capacity.data, ups_amc= form.ups_amc.data, ups_start_date= form.ups_start_date.data, 
-                                  ups_end_date= form.ups_end_date.data, source_of_purchase= form.source_of_purchase.data, contract_id= form.contract_id.data,
+                                retain_date=form.retain_date.data,retain_amount=form.retain_amount.data,transfer_date=form.transfer_date.data,
+                                transferred_from=form.transferred_from.data, transferred_to=form.transferred_to.data,transferred_amount=form.transferred_amount.data,
+                                disposed_date=form.disposed_date.data,disposed_amount=form.disposed_amount.data,
+                                asset_category= form.asset_category.data, 
+                                oem_serial_number = form.oem_serial_number.data, system_host_name = form.system_host_name.data, 
+                                ip_address = form.ip_address.data, AIC_office=form.AIC_office.data,
+                                oem_asset_warranty = form.oem_asset_warranty.data, oem_warranty_expiry_date = form.oem_warranty_expiry_date.data, 
+                                insurance_coverage= form.insurance_coverage.data, insurance_company= form.insurance_company.data,
+                                policy_number = form.policy_number.data, 
+                                insured_amount = form.insured_amount.data, start_date = form.start_date.data, 
+                                end_date= form.end_date.data, supplier_name = form.supplier_name.data, 
+                                supplier_contact = form.supplier_contact.data, supplier_location = form.supplier_location.data, supplier_address=form.supplier_address.data,
+                                supplier_email = form.supplier_email.data, having_issue=form.having_issue.data,
+                                incident_id = form.incident_id.data, remarks = form.remarks.data, payment_done= form.payment_done.data, 
+                                payment_date = form.payment_date.data, amount_paid=form.amount_paid.data,
+                                voucher_number = form.voucher_number.data, device_type = form.device_type.data, 
+                                desk_lap_os = form.desk_lap_os.data, desk_lap_hdd_type = form.desk_lap_hdd_type.data, 
+                                desk_lap_hdd_size = form.desk_lap_hdd_size.data, desk_lap_ram_type = form.desk_lap_ram_type.data, desk_lap_ram_size = form.desk_lap_ram_size.data, 
+                                desk_lap_ram_frequency = form.desk_lap_ram_frequency.data, desk_lap_ram_expandable = form.desk_lap_ram_expandable.data, 
+                                desk_lap_ram_slots = form.desk_lap_ram_slots.data, desk_lap_hdmi_port = form.desk_lap_hdmi_port.data, 
+                                desk_lap_display_size = form.desk_lap_display_size.data, desk_lap_graphics_card_size = form.desk_lap_graphics_card_size.data, 
+                                desk_lap_graphics_card_version = form.desk_lap_graphics_card_version.data, printer_type = form.printer_type.data, printing_type= form.printing_type.data, 
+                                printer_toner= form.printer_toner.data, printer_connectivity= form.printer_connectivity.data, hdd_size= form.hdd_size.data, 
+                                hdd_type= form.hdd_type.data, hdd_connectivity= form.hdd_connectivity.data, tab_os= form.tab_os.data, tab_storage= form.tab_storage.data, 
+                                tab_ram_size= form.tab_ram_size.data, tab_display_size= form.tab_display_size.data, tab_stylus= form.tab_stylus.data, 
+                                tab_connectivity= form.tab_connectivity.data, monitor_display_size= form.monitor_display_size.data, monitor_screen_type=form.monitor_screen_type.data, 
+                                ups_capacity= form.ups_capacity.data, ups_amc= form.ups_amc.data, ups_start_date= form.ups_start_date.data, 
+                                ups_end_date= form.ups_end_date.data, source_of_purchase= form.source_of_purchase.data, contract_id= form.contract_id.data,
                                     invoice_id= form.invoice_id.data, 
-                                  invoice_amount= form.invoice_amount.data, invoice_date= form.invoice_date.data, invoice_upload= form.invoice_upload.data)
+                                invoice_amount= form.invoice_amount.data, invoice_date= form.invoice_date.data, invoice_upload= form.invoice_upload.data)
         #db.drop_all()
         db.session.add(new_asset)
         print("address new",new_asset.supplier_address)
         db.session.commit()
-       
+    
         new_asset_status=Asset_Status_Details(asset_id=new_asset.id,asset_status=form.asset_status.data)
         db.session.add(new_asset_status)
-       
+    
         #db.create_all()
-       
+    
 
         if new_asset.asset_status=="Assigned"   :
-             user_name = request.form['user_name']
-             domain_name = request.form['domain_name']
-             user = User_Details.query.filter_by(user_name=user_name, domain_name=domain_name).first()
-             if user:
+            user_name = request.form['user_name']
+            domain_name = request.form['domain_name']
+            user = User_Details.query.filter_by(user_name=user_name, domain_name=domain_name).first()
+            if user:
                 new_asset_user_mapping = Asset_User_Mapping(asset_id=new_asset.id, user_id=user.user_id)
             # Perform actions with new_asset_user_mapping
                 db.session.add(new_asset_user_mapping)
                 db.session.commit()  # Commit the changes to the database
-               
-             else: 
+            
+            else: 
                 return "User not found. Please check the provided user name and domain name.", 400
-          
         
-       
+        
+    
         if (form.asset_status.data=='In Stock'):
 
             in_stock_start_date_str = form.in_stock_start_date.data.isoformat()
@@ -259,20 +261,20 @@ def add_asset():
             #new_asset_trail=Asset_Trail(asset_id=new_asset.id,trails=Asset_Trail.generate_trail_data(form.asset_status.data,in_stock_start_date_str, name))
             db.session.add(asset_log_data)
         else :
-             as_strt_date_str = form.assigned_start_date.data.isoformat()
-             date=form.assigned_start_date.data
-             form.transferred_to.data=None
-             form.transferred_from.data =None 
-             form.retain_amount.data =None
-             form.disposed_amount.data=None
-             new_trail_data = generate_asset_trail_data(form, 'Assigned')
-             asset_log_data = Asset_log(form.asset_status.data, new_asset.id,form.domain_name.data, form.user_name.data, as_strt_date_str, form.location.data, form.user_email.data, form.contact.data, form.company.data, form.transferred_to.data, form.transferred_from.data, form.retain_amount.data, form.disposed_amount.data, session.get('name'),datetime.today().strftime('%Y-%m-%d'))
+            as_strt_date_str = form.assigned_start_date.data.isoformat()
+            date=form.assigned_start_date.data
+            form.transferred_to.data=None
+            form.transferred_from.data =None 
+            form.retain_amount.data =None
+            form.disposed_amount.data=None
+            new_trail_data = generate_asset_trail_data(form, 'Assigned')
+            asset_log_data = Asset_log(form.asset_status.data, new_asset.id,form.domain_name.data, form.user_name.data, as_strt_date_str, form.location.data, form.user_email.data, form.contact.data, form.company.data, form.transferred_to.data, form.transferred_from.data, form.retain_amount.data, form.disposed_amount.data, session.get('name'),datetime.today().strftime('%Y-%m-%d'))
 
-             #new_asset_trail=Asset_Trail(asset_id=new_asset.id,trails=Asset_Trail.generate_trail_data(form.asset_status.data,as_strt_date_str,AIC_office=form.AIC_office.data,user_name=user.user_name,user_email_id=user.user_email,user_contact=user.user_contact,user_domain_id=user.domain_name,company=form.company.data, name=name))
-             db.session.add(asset_log_data)
+            #new_asset_trail=Asset_Trail(asset_id=new_asset.id,trails=Asset_Trail.generate_trail_data(form.asset_status.data,as_strt_date_str,AIC_office=form.AIC_office.data,user_name=user.user_name,user_email_id=user.user_email,user_contact=user.user_contact,user_domain_id=user.domain_name,company=form.company.data, name=name))
+            db.session.add(asset_log_data)
         db.session.commit() 
 
-       
+    
         uploaded_files = request.files.getlist('invoiceFiles[]')
         # Initialize a list to store the file names
         saved_file_names = []
@@ -314,7 +316,12 @@ def add_asset():
 
         flash("Asset has been added successfully!", "info")
 
-        return render_template('add_asset.html', form=form)
+        return redirect(url_for('add_asset.add_asset'))
+            # return render_template('add_asset.html', form=form)
+        # except Exception as e:
+        #     db.session.rollback()
+        #     app.logger.error("Unexpected error: %s\n%s", str(e), traceback.format_exc())
+        #     flash("Something went wrong. Please contact support.", "danger")
     form.set_choices()
 
     return render_template('add_asset.html', form=form)   
@@ -853,6 +860,25 @@ def search_assets():
     return render_template('search-it-asset.html', form=form)
 
 
+
+@asset_search.route('/check_number', methods=['POST'])
+def check_duplicate_asset():
+    data = request.get_json()
+    serial_number = data.get('serial_number')
+    print("serial_number89",serial_number)
+ 
+    if not serial_number:
+        return jsonify({'status':400, 'message': 'OEM number is required'}), 400
+    
+    exists = Asset_Details.query.filter_by(oem_serial_number=serial_number).first()
+ 
+    print("exists 988889",exists)
+    if exists is not None:
+        return jsonify({'status':403, 'message': 'OEM number already exists'})
+    else:
+        return jsonify({'status':200, 'message': 'OEM number is available'})
+
+
 import json
 
 from flask import render_template
@@ -1055,6 +1081,20 @@ def handle_database_error(error):
         return render_template('error_pages/database_error.html', error=error), 500
 
 # Your other views and routes...
+@app.route('/api/check-duplicate-asset', methods=['POST'])
+def check_duplicate_asset():
+    data = request.get_json()
+    asset_number = data.get('asset_number')
+ 
+    if not asset_number:
+        return jsonify({'status': 'error', 'message': 'Asset number is required'}), 400
+ 
+    exists = Asset_Details.query.filter_by(asset_number=asset_number).first()
+ 
+    if exists:
+        return jsonify({'status': 'duplicate', 'message': 'Asset number already exists'})
+    else:
+        return jsonify({'status': 'ok', 'message': 'Asset number is available'})
 
 
 

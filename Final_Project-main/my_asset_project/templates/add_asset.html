@@ -103,7 +103,7 @@
                     <label for="{{ form.product_category.id }}">Product Category:<span
                             style="color: red;">*</span></label>
                     {{ form.product_category(class="form-control", id=form.product_category.id,
-                    onchange="getCode()", required="required") }}
+                    onchange="getCode();showDeviceSpecifications()", required="required") }}
                 </div>
                 <div class="form-group col-md-4">
                     <label for="{{ form.asset_number.id }}">Asset number<span style="color: red;">*</span></label>
@@ -147,7 +147,7 @@
                     <!-- Asset Status Form Will Appear Here -->
                 </div>
 
-                <div class="form-group col-md-4" id="systemHostNameField" style="display: none;">
+                <div class="form-group col-md-4" id="systemHostNameField" >
                     <label for="{{ form.system_host_name.id }}">System Host Name:</label>
                     {{ form.system_host_name(type="text", class="form-control", id=form.system_host_name.id) }}
                 </div>
@@ -159,6 +159,9 @@
                     id=form.ip_address.id,oninput="validateIPv4(this)") }}
                 </div>
             </div>
+               <div id="specificationsForm">
+            <!-- <p>Device Specifications</title> -->
+        </div>
         </div>
         <button type="button" class="collapsible"><strong>Purchase Details</strong></button>
         <div class="container1">
@@ -375,9 +378,7 @@
 
 
 
-        <div id="specificationsForm">
-            <title>Device Specifications</title>
-        </div>
+     
 </div>
 
 
@@ -390,29 +391,47 @@
 <br>
 <script>
     function toggleSystemHostName() {
-        var productCategoryField = document.getElementById("{{ form.product_category.id }}");
-        var systemHostNameField = document.getElementById("systemHostNameField");
+        let check_product_category = document.getElementById("product_category").value
+    console.log("dsdsdsd",check_product_category === "Desktop" || check_product_category === "Laptop");
+    
+        // let productCategoryField = document.getElementById("{{ form.product_category.id }}");
+        let systemHostNameField = document.getElementById("systemHostNameField");
 
-        if (productCategoryField.value === "Desktop" || productCategoryField.value === "Laptop") {
-            systemHostNameField.style.display = "block";
+        if (check_product_category === "Desktop" || check_product_category === "Laptop") {
+
+
+            systemHostNameField.classList.remove("d-none");
+            systemHostNameField.classList.add("d-block");
         } else {
-            systemHostNameField.style.display = "none";
+            systemHostNameField.classList.remove("d-block");
+
+            systemHostNameField.classList.add("d-none");
         }
     }
 
         function showDeviceSpecifications() {
+        // let check_product_category = document.getElementById("product_category").value
 
-        console.log('111')
-        const product_category = document.getElementById("{{ form.product_category.id }}").value;
-        const specificationsForm = document.getElementById('specificationsForm');
-        console.log(`Category ${productCategory}: ${productCategory}`);
+
+        const product_category = document.getElementById("product_category").value
+        let specificationsForm = document.getElementById('specificationsForm');
+        // console.log(`Category ${productCategory}: ${productCategory}`);
+        console.log('hdsjkjdjhdsdjsd',product_category)
 
         specificationsForm.innerHTML = ''; // Clear previous content
 
         if (product_category === 'Laptop' || product_category === 'Desktop') {
             specificationsForm.innerHTML = `
-                                    <h4>Product Specifications</h4>                               
-        <div class="form-row">
+                                    <h4 style="background-color: green;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;">Product Specifications</h4>                               
+          <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="{{ form.desk_lap_os.id }}">Operating System:</label>
                     {{ form.desk_lap_os(class="form-control", id=form.desk_lap_os.id, placeholder="Enter Operating System") }}
@@ -467,7 +486,7 @@
                     <label for="{{ form.desk_lap_graphics_card_version.id }}">Graphics Card Version:</label>
                     {{ form.desk_lap_graphics_card_version(class="form-control", id=form.desk_lap_graphics_card_version.id) }}
                 </div>
-        </div>
+            </div>
 
                                         
                                     `;
@@ -475,9 +494,17 @@
         } else if (product_category === 'Printer') {
             specificationsForm.innerHTML = `
                                     
-                                    <h4>Product Specifications</h4>    
+                                     <h4 style="background-color: green;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;">Product Specifications</h4>    
                                         
-        <div class="form-row">
+         <div class="form-row">
             <div class="form-group col-md-4">
                 <label for="{{ form.printer_type.id }}">Printer Type:</label>
                 {{ form.printer_type(class="form-control", id=form.printer_type.id, placeholder="Enter Printer Type") }}
@@ -490,19 +517,27 @@
                 <label for="{{ form.printer_connectivity.id }}">Connectivity:</label>
                 {{ form.printer_connectivity(class="form-control", id=form.printer_connectivity.id) }}
             </div>
-        </div>
-        <div class="form-row">
+            </div>
+            <div class="form-row">
             <div class="form-group col-md-4">
                 <label for="{{ form.printer_toner.id }}">Printer Toner Name:</label>
                 {{ form.printer_toner(class="form-control", id=form.printer_toner.id, placeholder="Enter Printer Toner Name") }}
             </div>
-        </div>
+         </div>
 
                             
                                     `;
         } else if (product_category === 'HDD Specs') {
             specificationsForm.innerHTML = `
-                                    <h4>Product Specifications</h4>       
+                                    <h4 style="background-color: green;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;">Product Specifications</h4>       
                                     
             <div class="form-row">
                 <div class="form-group col-md-4">
@@ -517,14 +552,22 @@
                     <label for="{{ form.hdd_connectivity.id }}">Connectivity:</label>
                     {{ form.hdd_connectivity(class="form-control", id=form.hdd_connectivity.id) }}
                 </div>
-            </div>
+             </div>
 
                                         
                                     `;
         } else if (product_category === 'Tablet') {
             specificationsForm.innerHTML = `
-                                    <h4>Product Specifications</h4> 
-        <div class="form-row">
+                                     <h4 style="background-color: green;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;">Product Specifications</h4> 
+             <div class="form-row">
             <div class="form-group col-md-4">
                 <label for="{{ form.tab_os.id }}">Operating System:</label>
                 {{ form.tab_os(class="form-control", id=form.tab_os.id, placeholder="Enter Operating System") }}
@@ -537,8 +580,8 @@
                 <label for="{{ form.tab_ram_size.id }}">RAM Size (GB):</label>
                 {{ form.tab_ram_size(class="form-control", id=form.tab_ram_size.id, placeholder="Enter RAM Size") }}
             </div>
-        </div>
-        <div class="form-row">
+            </div>
+            <div class="form-row">
             <div class="form-group col-md-4">
                 <label for="{{ form.tab_display_size.id }}">Display Size (Inch):</label>
                 {{ form.tab_display_size(class="form-control", id=form.tab_display_size.id, placeholder="Enter Display Size") }}
@@ -551,7 +594,7 @@
                 <label for="{{ form.tab_connectivity.id }}">Connectivity:</label>
                 {{ form.tab_connectivity(class="form-control", id=form.tab_connectivity.id) }}
             </div>
-        </div>
+            </div>
 
                     
                                         
@@ -560,7 +603,15 @@
             specificationsForm.innerHTML = `
                                         
                                     
-                                    <h4>Product Specifications</h4>  
+                                    <h4 style="background-color: green;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;">Product Specifications</h4>  
                                         
             <div class="form-row">
                 <div class="form-group col-md-4">
@@ -579,8 +630,16 @@
             specificationsForm.innerHTML = `
                                         
                             
-                                    <h4>Product Specifications</h4> 
-        <div class="form-row">
+                                     <h4 style="background-color: green;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;">Product Specifications</h4> 
+         <div class="form-row">
             <div class="container mt-4">
                 <label for="{{ form.ups_capacity.id }}">UPS Capacity (Kva):</label>
                 {{ form.ups_capacity(class="form-control", id=form.ups_capacity.id, placeholder="Enter UPS Capacity (Kva)") }}
@@ -589,9 +648,9 @@
                 <label for="{{ form.ups_amc.id }}">AMC (Yes/No):</label>
                 {{ form.ups_amc(class="form-control", id=form.ups_amc.id) }}
             </div>
-        </div>
-        <div class="form-row">
-            <div class="container mt-4">
+            </div>
+            <div class="form-row">
+                <div class="container mt-4">
                 <label for="{{ form.ups_start_date.id }}">Start Date:</label>
                 {{ form.ups_start_date(class="form-control", id=form.ups_start_date.id,format="%d/%m/%Y") }}
                
@@ -601,7 +660,7 @@
                 <label for="{{ form.ups_end_date.id }}">End Date:</label>
                 {{ form.ups_end_date(class="form-control", id=form.ups_end_date.id,format="%d/%m/%Y" )}}
             </div>
-        </div>
+         </div>
                                     
                                     `;
 
@@ -642,6 +701,7 @@
             .catch(error => {
                 console.error('Error fetching codes:', error);
             });
+            toggleSystemHostName()
     }
 
     function fetchLastNumberFromServer(productCategory, AICOffice) {
